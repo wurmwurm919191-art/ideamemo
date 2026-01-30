@@ -21,29 +21,22 @@ function render() {
 
       const doneBtn = document.createElement("button");
       doneBtn.textContent = "완료";
-      doneBtn.onclick = (e) => {
-        // ✅ 이 두 줄이 핵심
-        e.preventDefault();
-        e.stopPropagation();
-
+      doneBtn.onclick = () => {
         const memos = loadMemos();
         const target = memos.find(x => x.id === m.id);
         if (!target) return;
 
-        // 상태만 변경
+        // ✅ 상태만 변경
         target.status = "completed";
         saveMemos(memos);
 
-        // running 화면에서만 제거
+        // ✅ 진행중 목록에서만 제거
         render();
       };
 
       const delBtn = document.createElement("button");
       delBtn.textContent = "삭제";
-      delBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
+      delBtn.onclick = () => {
         saveMemos(loadMemos().filter(x => x.id !== m.id));
         render();
       };
