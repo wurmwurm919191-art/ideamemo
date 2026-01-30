@@ -50,3 +50,17 @@ li {
 .nav {
   margin-top: 16px;
 }
+li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+li span {
+  flex: 1;
+}
+
+li button {
+  margin-left: 6px;
+}
