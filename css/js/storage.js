@@ -1,15 +1,19 @@
-const KEY = "memos";
+const KEY = "idea_memos";
 
 function loadMemos() {
   return JSON.parse(localStorage.getItem(KEY)) || [];
 }
 
-function saveMemos(data) {
-  localStorage.setItem(KEY, JSON.stringify(data));
+function saveMemos(memos) {
+  localStorage.setItem(KEY, JSON.stringify(memos));
 }
 
 function addMemo(text, status) {
-  const data = loadMemos();
-  data.push({ id: Date.now(), text, status });
-  saveMemos(data);
+  const memos = loadMemos();
+  memos.push({ id: Date.now(), text, status });
+  saveMemos(memos);
+}
+
+function getByStatus(status) {
+  return loadMemos().filter(m => m.status === status);
 }
