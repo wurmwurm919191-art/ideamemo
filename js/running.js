@@ -30,15 +30,16 @@ function render() {
         target.status = "completed";
         saveMemos(memos);
 
-        // ❌ 페이지 이동 없음
-        render(); // running 목록에서 즉시 사라짐
+        // ✅ 바로 완료 페이지로 이동
+        // ❌ running 화면은 건드리지 않음
+        location.href = "completed.html";
       };
 
       const delBtn = document.createElement("button");
       delBtn.textContent = "삭제";
       delBtn.onclick = () => {
         saveMemos(loadMemos().filter(x => x.id !== m.id));
-        render();
+        location.reload();
       };
 
       li.append(text, doneBtn, delBtn);
