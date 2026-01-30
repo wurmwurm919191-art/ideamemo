@@ -18,10 +18,15 @@ function render() {
   const categories = loadCategories();
 
   categories.forEach(cat => {
+    /* 🔥 subs 보정 (핵심) */
+    if (!Array.isArray(cat.subs)) {
+      cat.subs = [];
+    }
+
     const box = document.createElement("div");
     box.className = "category-box";
 
-    /* ===== 대분류 제목 ===== */
+    /* ===== 대분류 ===== */
     const title = document.createElement("h3");
     title.textContent = cat.name;
 
@@ -49,13 +54,13 @@ function render() {
         render();
       };
 
-      li.append(delSub);
+      li.appendChild(delSub);
       subList.appendChild(li);
     });
 
     box.appendChild(subList);
 
-    /* ===== 소분류 추가 ===== */
+    /* ===== 소분류 입력 (무조건 보임) ===== */
     if (cat.subs.length < 10) {
       const subInput = document.createElement("input");
       subInput.placeholder = "소분류 입력 (최대 10개)";
@@ -80,6 +85,9 @@ function render() {
 
     area.appendChild(box);
   });
+
+  /* 🔥 보정된 구조 다시 저장 */
+  saveCategories(categories);
 }
 
 /* ===== 대분류 추가 ===== */
@@ -97,7 +105,7 @@ addMainBtn.onclick = () => {
   categories.push({
     id: Date.now(),
     name,
-    subs: []
+    subs: [] // 🔥 처음부터 명시
   });
 
   saveCategories(categories);
