@@ -1,13 +1,24 @@
 const input = document.getElementById("memoInput");
-const buttons = document.querySelectorAll("button");
+const select = document.getElementById("statusSelect");
+const addBtn = document.getElementById("addBtn");
+const list = document.getElementById("memoList");
 
-buttons.forEach(b => {
-  b.onclick = () => {
-    if (!input.value.trim()) return;
-    addMemo(input.value.trim(), b.dataset.status);
-    input.value = "";
+function render() {
+  list.innerHTML = "";
+  loadMemos().forEach(m => {
+    const li = document.createElement("li");
+    li.className = m.status;
+    li.textContent = m.text;
+    list.appendChild(li);
+  });
+}
 
-    if (b.dataset.status === "completed") location.href = "completed.html";
-    if (b.dataset.status === "running") location.href = "running.html";
-  };
-});
+addBtn.onclick = () => {
+  const text = input.value.trim();
+  if (!text) return;
+  addMemo(text, select.value);
+  input.value = "";
+  render();
+};
+
+render();
