@@ -2,21 +2,33 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>Memo</title>
+  <title>Idea Memo</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<textarea id="memoInput"></textarea>
+<div class="app">
+  <h1>Idea Memo</h1>
 
-<div class="buttons">
-  <button data-status="pending">미실행</button>
-  <button data-status="running">실행중</button>
-  <button data-status="completed">완성</button>
+  <div class="input-box">
+    <input id="memoInput" placeholder="아이디어를 입력하세요" />
+    <select id="statusSelect">
+      <option value="pending">미실행</option>
+      <option value="running">실행중</option>
+      <option value="completed">완성</option>
+    </select>
+    <button id="addBtn">추가</button>
+  </div>
+
+  <div class="list-box">
+    <ul id="memoList"></ul>
+  </div>
+
+  <div class="nav">
+    <a href="running.html">실행중</a>
+    <a href="completed.html">완성</a>
+  </div>
 </div>
-
-<a href="completed.html">완성</a>
-<a href="running.html">실행중</a>
 
 <script src="js/storage.js"></script>
 <script src="js/main.js"></script>
