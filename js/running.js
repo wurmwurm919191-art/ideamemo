@@ -18,7 +18,14 @@ function render() {
         render();
       };
 
-      li.append(text, doneBtn);
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "삭제";
+      delBtn.onclick = () => {
+        deleteMemo(m.id);
+        render();
+      };
+
+      li.append(text, doneBtn, delBtn);
       list.appendChild(li);
     });
 }
