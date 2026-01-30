@@ -78,9 +78,89 @@ addBtn.onclick = () => {
     status: "pending",
     categoryId,
     subCategoryId
-  });
-  saveMemos(memos);
+  });const input = document.getElementById("memoInput");
+const addBtn = document.getElementById("addBtn");
+const list = document.getElementById("pendingList");
 
+const mainSelect = document.getElementById("mainSelect");
+const subSelect = document.getElementById("subSelect");
+
+let view = {
+  level: "main", // main | sub | memo
+  mainId: null,
+  subId: null
+};
+
+/* =========================
+   STORAGE
+========================= */
+function loadCategories() {
+  return JSON.parse(localStorage.getItem("ideaCategories")) || [];
+}
+
+function loadMemos() {
+  return JSON.parse(localStorage.getItem("ideaMemos")) || [];
+}
+
+function saveMemos(memos) {
+  localStorage.setItem("ideaMemos", JSON.stringify(memos));
+}
+
+/* =========================
+   SELECT
+========================= */
+function renderCategorySelect() {
+  const categories = loadCategories();
+
+  mainSelect.innerHTML = `<option value="">대분류</option>`;
+  subSelect.innerHTML = `<option value="">소분류</option>`;
+
+  categories.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    mainSelect.appendChild(opt);
+  });
+}
+
+mainSelect.onchange = () => {
+  const categories = loadCategories();
+  const selected = categories.find(c => c.id === Number(mainSelect.value));
+
+  subSelect.innerHTML = `<option value="">소분류</option>`;
+  if (!selected) return;
+
+  selected.subs.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.name;
+    subSelect.appendChild(opt);
+  });
+};
+
+/* =========================
+   ADD MEMO
+========================= */
+addBtn.onclick = () => {
+  const text = input.value.trim();
+  const categoryId = Number(mainSelect.value);
+  const subCategoryId = Number(subSelect.value);
+
+  if (!text || !categoryId || !subCategoryId) {
+    alert("아이디어 / 대분류 / 소분류 선택");
+    return;
+  }
+
+  const memos = loadMemos();
+  memos.push({
+    id: Date.now(),
+    text,
+    status: "pending",
+    categoryId,
+    subCategoryId
+  });
+
+  saveMemos(memos);
   input.value = "";
   render();
 };
@@ -92,13 +172,17 @@ function render() {
   list.innerHTML = "";
 
   const categories = loadCategories();
+  categories.forEach(c => {
+    if (!Array.isArray(c.subs)) c.subs = [];
+  });
+
   const memos = loadMemos().filter(m => m.status === "pending");
 
-  /* ===== 대분류 폴더 ===== */
+  // 대분류 폴더
   if (view.level === "main") {
     categories.forEach(cat => {
       const li = document.createElement("li");
-      li.textContent = "▸ " + cat.name;
+      li.textContent = "📁 " + cat.name;
       li.onclick = () => {
         view = { level: "sub", mainId: cat.id };
         render();
@@ -108,53 +192,60 @@ function render() {
     return;
   }
 
-  /* ===== 소분류 폴더 ===== */
+  // 소분류 폴더
   if (view.level === "sub") {
     const cat = categories.find(c => c.id === view.mainId);
     if (!cat) return;
 
+    back("대분류로");
+
     cat.subs.forEach(sub => {
       const li = document.createElement("li");
-      li.textContent = "▸ " + sub.name;
+      li.textContent = "📂 " + sub.name;
       li.onclick = () => {
         view = { level: "memo", mainId: cat.id, subId: sub.id };
         render();
       };
       list.appendChild(li);
     });
-
-    backButton("대분류로");
     return;
   }
 
-  /* ===== 메모 목록 ===== */
+  // 메모 목록
   if (view.level === "memo") {
-    const filtered = memos.filter(
-      m => m.categoryId === view.mainId && m.subCategoryId === view.subId
-    );
+    back("소분류로");
 
-    filtered.forEach(m => {
-      const li = document.createElement("li");
-      li.textContent = m.text;
+    memos
+      .filter(m => m.categoryId === view.mainId && m.subCategoryId === view.subId)
+      .forEach(m => {
+        const li = document.createElement("li");
 
-      const runBtn = document.createElement("button");
-      runBtn.textContent = "진행중";
-      runBtn.onclick = () => changeStatus(m.id, "running");
+        const text = document.createElement("span");
+        text.textContent = m.text;
 
-      const doneBtn = document.createElement("button");
-      doneBtn.textContent = "완료";
-      doneBtn.onclick = () => changeStatus(m.id, "completed");
+        const runBtn = document.createElement("button");
+        runBtn.textContent = "진행중";
+        runBtn.onclick = () => changeStatus(m.id, "running");
 
-      li.append(runBtn, doneBtn);
-      list.appendChild(li);
-    });
+        const doneBtn = document.createElement("button");
+        doneBtn.textContent = "완료";
+        doneBtn.onclick = () => changeStatus(m.id, "completed");
 
-    backButton("소분류로");
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "삭제";
+        delBtn.onclick = () => {
+          saveMemos(loadMemos().filter(x => x.id !== m.id));
+          render();
+        };
+
+        li.append(text, runBtn, doneBtn, delBtn);
+        list.appendChild(li);
+      });
   }
 }
 
 /* =========================
-   STATUS CHANGE
+   STATUS
 ========================= */
 function changeStatus(id, status) {
   const memos = loadMemos();
@@ -169,22 +260,24 @@ function changeStatus(id, status) {
 }
 
 /* =========================
-   BACK BUTTON
+   BACK
 ========================= */
-function backButton(text) {
+function back(text) {
   const li = document.createElement("li");
   li.textContent = "← " + text;
-  li.style.fontWeight = "bold";
   li.onclick = () => {
     if (view.level === "memo") view = { level: "sub", mainId: view.mainId };
     else view = { level: "main" };
     render();
   };
-  list.prepend(li);
+  list.appendChild(li);
 }
 
 /* =========================
    INIT
+========================= */
+renderCategorySelect();
+render();
 ========================= */
 renderCategorySelect();
 render();
