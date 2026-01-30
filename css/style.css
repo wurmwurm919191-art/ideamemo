@@ -1,18 +1,18 @@
-/* ===== 기본 ===== */
+/* ===== reset ===== */
 * {
   box-sizing: border-box;
 }
 
 body {
-  background: #f4f6f8;
   margin: 0;
-  padding: 12px;              /* ❗ 모바일에서 40px → 12px */
+  padding: 12px;
+  background: #f4f6f8;
   font-family: system-ui, sans-serif;
 }
 
-/* ===== 앱 컨테이너 ===== */
+/* ===== app ===== */
 .app {
-  width: 100%;                /* ❗ 꽉 차게 */
+  width: 100%;
   max-width: 600px;
   margin: 0 auto;
   background: #fff;
@@ -20,34 +20,25 @@ body {
   border-radius: 12px;
 }
 
-/* ===== 입력 영역 ===== */
+/* ===== input area ===== */
 .input-box {
   display: flex;
-  flex-wrap: wrap;            /* ❗ 모바일에서 줄바꿈 허용 */
   gap: 8px;
   margin-bottom: 16px;
 }
 
-input,
+/* 기본(PC) */
+#memoInput {
+  flex: 1;
+}
+
 select,
 button {
   padding: 10px;
   font-size: 16px;
 }
 
-/* 입력창은 항상 100% */
-#memoInput {
-  width: 100%;
-}
-
-/* 셀렉트 & 버튼 */
-.input-box select,
-.input-box button {
-  flex: 1;                    /* ❗ 가로 자동 분배 */
-  min-width: 0;               /* ❗ overflow 방지 */
-}
-
-/* ===== 리스트 ===== */
+/* ===== list ===== */
 ul {
   list-style: none;
   padding: 0;
@@ -67,16 +58,32 @@ li {
 
 li span {
   flex: 1;
-  word-break: break-word;     /* ❗ 긴 글 줄바꿈 */
+  word-break: break-word;
 }
 
 li button {
   white-space: nowrap;
 }
 
-/* ===== 하단 네비 ===== */
+/* ===== nav ===== */
 .nav {
   margin-top: 16px;
   display: flex;
   justify-content: space-between;
+}
+
+/* =========================
+   ✅ 모바일 전용 (핵심)
+========================= */
+@media (max-width: 600px) {
+
+  .input-box {
+    flex-direction: column;   /* ❗ 세로 배치 */
+  }
+
+  #memoInput,
+  .input-box select,
+  .input-box button {
+    width: 100%;              /* ❗ 화면 꽉 채움 */
+  }
 }
