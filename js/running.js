@@ -19,8 +19,6 @@ function render() {
       const text = document.createElement("span");
       text.textContent = m.text;
 
-      const btns = document.createElement("div");
-
       const doneBtn = document.createElement("button");
       doneBtn.textContent = "완료";
       doneBtn.onclick = () => {
@@ -31,7 +29,8 @@ function render() {
         target.status = "completed";
         saveMemos(memos);
 
-        location.href = "completed.html"; // 🔥 완료방으로 이동
+        // ✅ UI 건들지 말고 그냥 이동
+        location.href = "completed.html";
       };
 
       const delBtn = document.createElement("button");
@@ -41,8 +40,7 @@ function render() {
         render();
       };
 
-      btns.append(doneBtn, delBtn);
-      li.append(text, btns);
+      li.append(text, doneBtn, delBtn);
       list.appendChild(li);
     });
 }
