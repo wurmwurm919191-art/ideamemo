@@ -10,27 +10,22 @@
 <div class="app">
   <h1>Idea Memo</h1>
 
+  <!-- 입력 영역 (방 아님) -->
   <div class="input-box">
-    <input id="memoInput" placeholder="아이디어를 입력하세요" />
-    <select id="statusSelect">
-      <option value="pending">미실행</option>
-      <option value="running">실행중</option>
-      <option value="completed">완성</option>
-    </select>
+    <input id="memoInput" placeholder="아이디어 입력" />
     <button id="addBtn">추가</button>
   </div>
 
-  <div class="list-box">
-    <ul id="memoList"></ul>
-  </div>
+  <!-- 리스트방 -->
+  <ul id="pendingList"></ul>
 
   <div class="nav">
-    <a href="running.html">실행중</a>
-    <a href="completed.html">완성</a>
+    <a href="running.html">진행중</a>
+    <a href="completed.html">완료</a>
   </div>
 </div>
 
 <script src="js/storage.js"></script>
-<script src="js/main.js"></script>
+<script src="js/index.js"></script>
 </body>
 </html>
