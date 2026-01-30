@@ -20,3 +20,7 @@ function updateStatus(id, status) {
   if (m) m.status = status;
   saveMemos(memos);
 }
+function deleteMemo(id) {
+  const memos = loadMemos().filter(m => m.id !== id);
+  saveMemos(memos);
+}
