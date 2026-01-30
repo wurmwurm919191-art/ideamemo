@@ -42,6 +42,44 @@ mainSelect.onchange = () => {
 };
 
 /* =========================
+   메모 불러오기/저장
+========================= */
+function loadMemos() {
+  return JSON.parse(localStorage.getItem("ideaMemos")) || [];
+}
+
+function saveMemos(memos) {
+  localStorage.setItem("ideaMemos", JSON.stringify(memos));
+}
+
+function addMemo(text, categoryId, subCategoryId) {
+  const memos = loadMemos();
+  memos.push({
+    id: Date.now(),
+    text,
+    status: "pending",
+    categoryId,
+    subCategoryId
+  });
+  saveMemos(memos);
+}
+
+function updateStatus(id, status) {
+  const memos = loadMemos();
+  const m = memos.find(m => m.id === id);
+  if (m) {
+    m.status = status;
+    saveMemos(memos);
+  }
+}
+
+function deleteMemo(id) {
+  let memos = loadMemos();
+  memos = memos.filter(m => m.id !== id);
+  saveMemos(memos);
+}
+
+/* =========================
    리스트 렌더링
 ========================= */
 function render() {
@@ -138,15 +176,15 @@ function render() {
 ========================= */
 addBtn.onclick = () => {
   const text = input.value.trim();
-  const categoryId = mainSelect.value;
-  const subCategoryId = subSelect.value;
+  const categoryId = Number(mainSelect.value);
+  const subCategoryId = Number(subSelect.value);
 
   if (!text || !categoryId || !subCategoryId) {
     alert("아이디어 / 대분류 / 소분류를 모두 선택하세요");
     return;
   }
 
-  addMemo(text, Number(categoryId), Number(subCategoryId));
+  addMemo(text, categoryId, subCategoryId);
 
   input.value = "";
   mainSelect.value = "";
