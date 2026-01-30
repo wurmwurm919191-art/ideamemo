@@ -21,25 +21,31 @@ function render() {
 
       const doneBtn = document.createElement("button");
       doneBtn.textContent = "완료";
-      doneBtn.onclick = () => {
+      doneBtn.onclick = (e) => {
+        // ✅ 이 두 줄이 핵심
+        e.preventDefault();
+        e.stopPropagation();
+
         const memos = loadMemos();
         const target = memos.find(x => x.id === m.id);
         if (!target) return;
 
-        // ✅ 상태만 변경
+        // 상태만 변경
         target.status = "completed";
         saveMemos(memos);
 
-        // ✅ 바로 완료 페이지로 이동
-        // ❌ running 화면은 건드리지 않음
-        location.href = "completed.html";
+        // running 화면에서만 제거
+        render();
       };
 
       const delBtn = document.createElement("button");
       delBtn.textContent = "삭제";
-      delBtn.onclick = () => {
+      delBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
         saveMemos(loadMemos().filter(x => x.id !== m.id));
-        location.reload();
+        render();
       };
 
       li.append(text, doneBtn, delBtn);
