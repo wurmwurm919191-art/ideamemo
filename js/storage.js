@@ -1,32 +1,25 @@
-const KEY = "ideaMemo";
+/* =========================
+   CATEGORY STORAGE
+========================= */
+const CATEGORY_KEY = "ideaCategories";
+
+function loadCategories() {
+  return JSON.parse(localStorage.getItem(CATEGORY_KEY)) || [];
+}
+
+function saveCategories(categories) {
+  localStorage.setItem(CATEGORY_KEY, JSON.stringify(categories));
+}
+
+/* =========================
+   MEMO STORAGE
+========================= */
+const MEMO_KEY = "ideaMemos";
 
 function loadMemos() {
-  return JSON.parse(localStorage.getItem(KEY)) || [];
+  return JSON.parse(localStorage.getItem(MEMO_KEY)) || [];
 }
 
 function saveMemos(memos) {
-  localStorage.setItem(KEY, JSON.stringify(memos));
-}
-
-function addMemo(text, categoryId, subCategoryId) {
-  const memos = loadMemos();
-  memos.push({
-    id: Date.now(),
-    text,
-    status: "pending",
-    categoryId,
-    subCategoryId
-  });
-  saveMemos(memos);
-}
-
-function updateStatus(id, status) {
-  const memos = loadMemos();
-  const m = memos.find(m => m.id === id);
-  if (m) m.status = status;
-  saveMemos(memos);
-}
-function deleteMemo(id) {
-  const memos = loadMemos().filter(m => m.id !== id);
-  saveMemos(memos);
+  localStorage.setItem(MEMO_KEY, JSON.stringify(memos));
 }
