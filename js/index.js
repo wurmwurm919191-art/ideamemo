@@ -4,6 +4,7 @@ const list = document.getElementById("pendingList");
 
 function render() {
   list.innerHTML = "";
+
   loadMemos()
     .filter(m => m.status === "pending")
     .forEach(m => {
@@ -19,17 +20,24 @@ function render() {
       runBtn.textContent = "진행중";
       runBtn.onclick = () => {
         updateStatus(m.id, "running");
-        location.href = "running.html";
+        render();
       };
 
       const doneBtn = document.createElement("button");
       doneBtn.textContent = "완료";
       doneBtn.onclick = () => {
         updateStatus(m.id, "completed");
-        location.href = "completed.html";
+        render();
       };
 
-      actions.append(runBtn, doneBtn);
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "삭제";
+      delBtn.onclick = () => {
+        deleteMemo(m.id);
+        render();
+      };
+
+      actions.append(runBtn, doneBtn, delBtn);
       li.append(text, actions);
       list.appendChild(li);
     });
