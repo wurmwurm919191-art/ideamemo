@@ -1,33 +1,41 @@
 const list = document.getElementById("runningList");
 
+function loadMemos() {
+  return JSON.parse(localStorage.getItem("ideaMemos")) || [];
+}
+function saveMemos(memos) {
+  localStorage.setItem("ideaMemos", JSON.stringify(memos));
+}
+
 function render() {
   list.innerHTML = "";
+  loadMemos().filter(m => m.status === "running").forEach(m => {
+    const li = document.createElement("li");
 
-  loadMemos()
-    .filter(m => m.status === "running")
-    .forEach(m => {
-      const li = document.createElement("li");
+    const text = document.createElement("span");
+    text.textContent = m.text;
 
-      const text = document.createElement("span");
-      text.textContent = m.text;
+    const btns = document.createElement("div");
 
-      const doneBtn = document.createElement("button");
-      doneBtn.textContent = "완료";
-      doneBtn.onclick = () => {
-        updateStatus(m.id, "completed");
-        render();
-      };
+    const done = document.createElement("button");
+    done.textContent = "완료";
+    done.onclick = () => {
+      m.status = "completed";
+      saveMemos(loadMemos());
+      render();
+    };
 
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "삭제";
-      delBtn.onclick = () => {
-        deleteMemo(m.id);
-        render();
-      };
+    const del = document.createElement("button");
+    del.textContent = "삭제";
+    del.onclick = () => {
+      saveMemos(loadMemos().filter(x => x.id !== m.id));
+      render();
+    };
 
-      li.append(text, doneBtn, delBtn);
-      list.appendChild(li);
-    });
+    btns.append(done, del);
+    li.append(text, btns);
+    list.appendChild(li);
+  });
 }
 
 render();
