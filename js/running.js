@@ -26,11 +26,12 @@ function render() {
         const target = memos.find(x => x.id === m.id);
         if (!target) return;
 
+        // ✅ 상태만 변경
         target.status = "completed";
         saveMemos(memos);
 
-        // ✅ UI 건들지 말고 그냥 이동
-        location.href = "completed.html";
+        // ❌ 페이지 이동 없음
+        render(); // running 목록에서 즉시 사라짐
       };
 
       const delBtn = document.createElement("button");
