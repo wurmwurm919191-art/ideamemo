@@ -43,48 +43,80 @@ mainSelect.onchange = () => {
 };
 
 /* =========================
-   리스트 렌더 (미실행)
+   리스트 렌더 (미실행 / 분류별)
 ========================= */
 
 function render() {
   list.innerHTML = "";
 
-  loadMemos()
-    .filter(m => m.status === "pending")
-    .forEach(m => {
-      const li = document.createElement("li");
+  const memos = loadMemos().filter(m => m.status === "pending");
+  const categories = loadCategories();
 
-      const text = document.createElement("span");
-      text.textContent = m.text;
+  categories.forEach(cat => {
+    const catMemos = memos.filter(m => m.categoryId === cat.id);
+    if (catMemos.length === 0) return;
 
-      const actions = document.createElement("div");
-      actions.className = "actions";
+    const catTitle = document.createElement("li");
+    catTitle.textContent = cat.name;
+    catTitle.style.fontWeight = "bold";
+    catTitle.style.background = "#e2e8f0";
 
-      const runBtn = document.createElement("button");
-      runBtn.textContent = "진행중";
-      runBtn.onclick = () => {
-        updateStatus(m.id, "running");
-        render();
-      };
+    const catUl = document.createElement("ul");
 
-      const doneBtn = document.createElement("button");
-      doneBtn.textContent = "완료";
-      doneBtn.onclick = () => {
-        updateStatus(m.id, "completed");
-        render();
-      };
+    cat.subs.forEach(sub => {
+      const subMemos = catMemos.filter(m => m.subCategoryId === sub.id);
+      if (subMemos.length === 0) return;
 
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "삭제";
-      delBtn.onclick = () => {
-        deleteMemo(m.id);
-        render();
-      };
+      const subLi = document.createElement("li");
+      subLi.style.background = "#f8fafc";
 
-      actions.append(runBtn, doneBtn, delBtn);
-      li.append(text, actions);
-      list.appendChild(li);
+      const subTitle = document.createElement("div");
+      subTitle.textContent = "▸ " + sub.name;
+      subTitle.style.fontWeight = "600";
+
+      const memoUl = document.createElement("ul");
+
+      subMemos.forEach(m => {
+        const memoLi = document.createElement("li");
+
+        const text = document.createElement("span");
+        text.textContent = m.text;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const runBtn = document.createElement("button");
+        runBtn.textContent = "진행중";
+        runBtn.onclick = () => {
+          updateStatus(m.id, "running");
+          render();
+        };
+
+        const doneBtn = document.createElement("button");
+        doneBtn.textContent = "완료";
+        doneBtn.onclick = () => {
+          updateStatus(m.id, "completed");
+          render();
+        };
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "삭제";
+        delBtn.onclick = () => {
+          deleteMemo(m.id);
+          render();
+        };
+
+        actions.append(runBtn, doneBtn, delBtn);
+        memoLi.append(text, actions);
+        memoUl.appendChild(memoLi);
+      });
+
+      subLi.append(subTitle, memoUl);
+      catUl.appendChild(subLi);
     });
+
+    list.append(catTitle, catUl);
+  });
 }
 
 /* =========================
@@ -112,6 +144,10 @@ addBtn.onclick = () => {
 
 /* =========================
    초기 실행
+========================= */
+
+renderCategorySelect();
+render();
 ========================= */
 
 renderCategorySelect();
