@@ -6,9 +6,8 @@ const mainSelect = document.getElementById("mainSelect");
 const subSelect = document.getElementById("subSelect");
 
 /* =========================
-   분류 로드
+   분류 불러오기
 ========================= */
-
 function loadCategories() {
   return JSON.parse(localStorage.getItem("ideaCategories")) || [];
 }
@@ -43,9 +42,8 @@ mainSelect.onchange = () => {
 };
 
 /* =========================
-   리스트 렌더 (미실행 / 분류별)
+   리스트 렌더링
 ========================= */
-
 function render() {
   list.innerHTML = "";
 
@@ -56,12 +54,20 @@ function render() {
     const catMemos = memos.filter(m => m.categoryId === cat.id);
     if (catMemos.length === 0) return;
 
-    const catTitle = document.createElement("li");
-    catTitle.textContent = cat.name;
-    catTitle.style.fontWeight = "bold";
-    catTitle.style.background = "#e2e8f0";
+    const catHeader = document.createElement("li");
+    catHeader.textContent = "▾ " + cat.name;
+    catHeader.style.fontWeight = "bold";
+    catHeader.style.cursor = "pointer";
+    catHeader.style.background = "#e2e8f0";
 
     const catUl = document.createElement("ul");
+
+    let catOpen = true;
+    catHeader.onclick = () => {
+      catOpen = !catOpen;
+      catUl.style.display = catOpen ? "block" : "none";
+      catHeader.textContent = (catOpen ? "▾ " : "▸ ") + cat.name;
+    };
 
     cat.subs.forEach(sub => {
       const subMemos = catMemos.filter(m => m.subCategoryId === sub.id);
@@ -70,11 +76,19 @@ function render() {
       const subLi = document.createElement("li");
       subLi.style.background = "#f8fafc";
 
-      const subTitle = document.createElement("div");
-      subTitle.textContent = "▸ " + sub.name;
-      subTitle.style.fontWeight = "600";
+      const subHeader = document.createElement("div");
+      subHeader.textContent = "▾ " + sub.name;
+      subHeader.style.cursor = "pointer";
+      subHeader.style.fontWeight = "600";
 
       const memoUl = document.createElement("ul");
+      let subOpen = true;
+
+      subHeader.onclick = () => {
+        subOpen = !subOpen;
+        memoUl.style.display = subOpen ? "block" : "none";
+        subHeader.textContent = (subOpen ? "▾ " : "▸ ") + sub.name;
+      };
 
       subMemos.forEach(m => {
         const memoLi = document.createElement("li");
@@ -111,18 +125,17 @@ function render() {
         memoUl.appendChild(memoLi);
       });
 
-      subLi.append(subTitle, memoUl);
+      subLi.append(subHeader, memoUl);
       catUl.appendChild(subLi);
     });
 
-    list.append(catTitle, catUl);
+    list.append(catHeader, catUl);
   });
 }
 
 /* =========================
    추가 버튼
 ========================= */
-
 addBtn.onclick = () => {
   const text = input.value.trim();
   const categoryId = mainSelect.value;
@@ -145,7 +158,6 @@ addBtn.onclick = () => {
 /* =========================
    초기 실행
 ========================= */
-
 renderCategorySelect();
 render();
 ========================= */
