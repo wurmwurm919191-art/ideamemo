@@ -10,25 +10,27 @@
 <div class="app">
   <h1>Idea Memo</h1>
 
-  <!-- 입력 영역 (방 아님) -->
+  <!-- 입력 영역 -->
   <div class="input-box">
-  <input id="memoInput" placeholder="아이디어 입력">
+    <input id="memoInput" placeholder="아이디어 입력">
 
-  <select id="mainSelect">
-    <option value="">대분류</option>
-  </select>
+    <select id="mainSelect">
+      <option value="">대분류</option>
+    </select>
 
-  <select id="subSelect">
-    <option value="">소분류</option>
-  </select>
+    <select id="subSelect">
+      <option value="">소분류</option>
+    </select>
 
-  <button id="addBtn">추가</button>
-</div>
+    <button id="addBtn">추가</button>
+  </div>
 
   <!-- 리스트방 -->
   <ul id="pendingList"></ul>
 
+  <!-- 설정 / 진행중 / 완료 이동 -->
   <div class="nav">
+    <a href="settings.html">설정</a>
     <a href="running.html">진행중</a>
     <a href="completed.html">완료</a>
   </div>
@@ -38,8 +40,3 @@
 <script src="js/index.js"></script>
 </body>
 </html>
-<div class="nav">
-  <a href="settings.html">설정</a>
-  <a href="running.html">진행중</a>
-  <a href="completed.html">완료</a>
-</div>
