@@ -82,7 +82,7 @@ addMainBtn.onclick = () => {
 
   const categories = loadCategories();
   if (categories.length >= 5) {
-    alert("대분류는 최대 5개까지입니다");
+    alert("대분류는 최대 5개까지 가능합니다.");
     return;
   }
 
