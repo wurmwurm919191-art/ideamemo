@@ -6,12 +6,15 @@ const mainSelect = document.getElementById("mainSelect");
 const subSelect = document.getElementById("subSelect");
 
 /* =========================
-   분류 불러오기
+   분류 로드
 ========================= */
 function loadCategories() {
   return JSON.parse(localStorage.getItem("ideaCategories")) || [];
 }
 
+/* =========================
+   분류 select 렌더
+========================= */
 function renderCategorySelect() {
   const categories = loadCategories();
 
@@ -20,7 +23,7 @@ function renderCategorySelect() {
 
   categories.forEach(c => {
     const opt = document.createElement("option");
-    opt.value = c.id;
+    opt.value = c.id;            // 숫자 id
     opt.textContent = c.name;
     mainSelect.appendChild(opt);
   });
@@ -28,21 +31,22 @@ function renderCategorySelect() {
 
 mainSelect.onchange = () => {
   const categories = loadCategories();
-  const selected = categories.find(c => c.id == mainSelect.value);
+  const selectedId = Number(mainSelect.value);   // 🔥 핵심 수정
+  const selected = categories.find(c => c.id === selectedId);
 
   subSelect.innerHTML = `<option value="">소분류</option>`;
   if (!selected) return;
 
   selected.subs.forEach(s => {
     const opt = document.createElement("option");
-    opt.value = s.id;
+    opt.value = s.id;           // 숫자 id
     opt.textContent = s.name;
     subSelect.appendChild(opt);
   });
 };
 
 /* =========================
-   메모 불러오기/저장
+   메모 저장 / 로드
 ========================= */
 function loadMemos() {
   return JSON.parse(localStorage.getItem("ideaMemos")) || [];
@@ -74,13 +78,12 @@ function updateStatus(id, status) {
 }
 
 function deleteMemo(id) {
-  let memos = loadMemos();
-  memos = memos.filter(m => m.id !== id);
+  const memos = loadMemos().filter(m => m.id !== id);
   saveMemos(memos);
 }
 
 /* =========================
-   리스트 렌더링
+   리스트 렌더 (미실행)
 ========================= */
 function render() {
   list.innerHTML = "";
@@ -95,17 +98,9 @@ function render() {
     const catHeader = document.createElement("li");
     catHeader.textContent = "▾ " + cat.name;
     catHeader.style.fontWeight = "bold";
-    catHeader.style.cursor = "pointer";
     catHeader.style.background = "#e2e8f0";
 
     const catUl = document.createElement("ul");
-
-    let catOpen = true;
-    catHeader.onclick = () => {
-      catOpen = !catOpen;
-      catUl.style.display = catOpen ? "block" : "none";
-      catHeader.textContent = (catOpen ? "▾ " : "▸ ") + cat.name;
-    };
 
     cat.subs.forEach(sub => {
       const subMemos = catMemos.filter(m => m.subCategoryId === sub.id);
@@ -114,19 +109,11 @@ function render() {
       const subLi = document.createElement("li");
       subLi.style.background = "#f8fafc";
 
-      const subHeader = document.createElement("div");
-      subHeader.textContent = "▾ " + sub.name;
-      subHeader.style.cursor = "pointer";
-      subHeader.style.fontWeight = "600";
+      const subTitle = document.createElement("div");
+      subTitle.textContent = sub.name;
+      subTitle.style.fontWeight = "600";
 
       const memoUl = document.createElement("ul");
-      let subOpen = true;
-
-      subHeader.onclick = () => {
-        subOpen = !subOpen;
-        memoUl.style.display = subOpen ? "block" : "none";
-        subHeader.textContent = (subOpen ? "▾ " : "▸ ") + sub.name;
-      };
 
       subMemos.forEach(m => {
         const memoLi = document.createElement("li");
@@ -163,7 +150,7 @@ function render() {
         memoUl.appendChild(memoLi);
       });
 
-      subLi.append(subHeader, memoUl);
+      subLi.append(subTitle, memoUl);
       catUl.appendChild(subLi);
     });
 
@@ -176,8 +163,8 @@ function render() {
 ========================= */
 addBtn.onclick = () => {
   const text = input.value.trim();
-  const categoryId = Number(mainSelect.value);
-  const subCategoryId = Number(subSelect.value);
+  const categoryId = Number(mainSelect.value);     // 🔥 핵심
+  const subCategoryId = Number(subSelect.value);   // 🔥 핵심
 
   if (!text || !categoryId || !subCategoryId) {
     alert("아이디어 / 대분류 / 소분류를 모두 선택하세요");
@@ -196,9 +183,5 @@ addBtn.onclick = () => {
 /* =========================
    초기 실행
 ========================= */
-renderCategorySelect();
-render();
-========================= */
-
 renderCategorySelect();
 render();
