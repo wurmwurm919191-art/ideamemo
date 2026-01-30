@@ -8,9 +8,15 @@ function saveMemos(memos) {
   localStorage.setItem(KEY, JSON.stringify(memos));
 }
 
-function addMemo(text) {
+function addMemo(text, categoryId, subCategoryId) {
   const memos = loadMemos();
-  memos.push({ id: Date.now(), text, status: "pending" });
+  memos.push({
+    id: Date.now(),
+    text,
+    status: "pending",
+    categoryId,
+    subCategoryId
+  });
   saveMemos(memos);
 }
 
