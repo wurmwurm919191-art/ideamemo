@@ -15,20 +15,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const deleteAllBtn = document.getElementById("deleteAllBtn");
   const area = document.getElementById("categoryArea");
 
+  /* ===== 🔒 초기 구조 보정 (1회) ===== */
+  function normalizeCategories() {
+    const categories = loadCategories();
+    let changed = false;
+
+    categories.forEach(cat => {
+      if (!Array.isArray(cat.subs)) {
+        cat.subs = [];
+        changed = true;
+      }
+      if (typeof cat.open !== "boolean") {
+        cat.open = true;
+        changed = true;
+      }
+    });
+
+    if (changed) saveCategories(categories);
+  }
+
   function render() {
     area.innerHTML = "";
-
     const categories = loadCategories();
 
     categories.forEach(cat => {
-      if (!Array.isArray(cat.subs)) cat.subs = [];
 
       const box = document.createElement("div");
       box.className = "category-box";
+      box.style.marginBottom = "16px";
 
-      /* ===== 대분류 ===== */
-      const title = document.createElement("h3");
+      /* ===== 대분류 헤더 ===== */
+      const header = document.createElement("div");
+      header.style.display = "flex";
+      header.style.alignItems = "center";
+      header.style.gap = "8px";
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.textContent = cat.open ? "▼" : "▶";
+      toggleBtn.onclick = () => {
+        cat.open = !cat.open;
+        saveCategories(categories);
+        render();
+      };
+
+      const title = document.createElement("strong");
       title.textContent = cat.name;
+      title.style.flex = "1";
 
       const delMain = document.createElement("button");
       delMain.textContent = "삭제";
@@ -38,52 +70,55 @@ document.addEventListener("DOMContentLoaded", () => {
         render();
       };
 
-      box.append(title, delMain);
+      header.append(toggleBtn, title, delMain);
+      box.appendChild(header);
 
-      /* ===== 소분류 목록 ===== */
-      const subList = document.createElement("ul");
+      /* ===== 소분류 영역 ===== */
+      if (cat.open) {
+        const subArea = document.createElement("div");
+        subArea.style.marginTop = "8px";
 
-      cat.subs.forEach(sub => {
-        const li = document.createElement("li");
-        li.textContent = sub.name;
+        const subList = document.createElement("ul");
 
-        const delSub = document.createElement("button");
-        delSub.textContent = "삭제";
-        delSub.onclick = () => {
-          if (!confirm("소분류를 삭제하시겠습니까?")) return;
-          cat.subs = cat.subs.filter(s => s.id !== sub.id);
-          saveCategories(categories);
-          render();
-        };
+        cat.subs.forEach(sub => {
+          const li = document.createElement("li");
+          li.textContent = sub.name;
 
-        li.appendChild(delSub);
-        subList.appendChild(li);
-      });
+          const delSub = document.createElement("button");
+          delSub.textContent = "삭제";
+          delSub.onclick = () => {
+            if (!confirm("소분류를 삭제하시겠습니까?")) return;
+            cat.subs = cat.subs.filter(s => s.id !== sub.id);
+            saveCategories(categories);
+            render();
+          };
 
-      box.appendChild(subList);
+          li.appendChild(delSub);
+          subList.appendChild(li);
+        });
 
-      /* ===== 소분류 입력 ===== */
-      if (cat.subs.length < 10) {
-        const subInput = document.createElement("input");
-        subInput.placeholder = "소분류 입력 (최대 10개)";
+        subArea.appendChild(subList);
 
-        const addSubBtn = document.createElement("button");
-        addSubBtn.textContent = "추가";
-        addSubBtn.onclick = () => {
-          if (!confirm("소분류를 추가하시겠습니까?")) return;
-          const name = subInput.value.trim();
-          if (!name) return;
+        if (cat.subs.length < 10) {
+          const subInput = document.createElement("input");
+          subInput.placeholder = "소분류 입력 (최대 10개)";
 
-          cat.subs.push({
-            id: Date.now(),
-            name
-          });
+          const addSubBtn = document.createElement("button");
+          addSubBtn.textContent = "추가";
+          addSubBtn.onclick = () => {
+            if (!confirm("소분류를 추가하시겠습니까?")) return;
+            const name = subInput.value.trim();
+            if (!name) return;
 
-          saveCategories(categories);
-          render();
-        };
+            cat.subs.push({ id: Date.now(), name });
+            saveCategories(categories);
+            render();
+          };
 
-        box.append(subInput, addSubBtn);
+          subArea.append(subInput, addSubBtn);
+        }
+
+        box.appendChild(subArea);
       }
 
       area.appendChild(box);
@@ -106,7 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
     categories.push({
       id: Date.now(),
       name,
-      subs: []
+      subs: [],
+      open: true
     });
 
     saveCategories(categories);
@@ -116,14 +152,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ===== 분류 전체 삭제 ===== */
   deleteAllBtn.onclick = () => {
-    if (
-      !confirm(
-        "⚠ 모든 대분류와 소분류를 전부 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다."
-      )
-    ) return;
-
+    if (!confirm("⚠ 모든 분류를 삭제하시겠습니까?\n되돌릴 수 없습니다.")) return;
     localStorage.removeItem(KEY);
     render();
+  };
+
+  /* ===== 실행 순서 중요 ===== */
+  normalizeCategories(); // 🔒 구조 보정 1회
+  render();              // 🎨 그리기
+});
   };
 
   render();
