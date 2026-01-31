@@ -1,135 +1,115 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const KEY = "ideaCategories";
-  const MEMO_KEY = "ideaMemos";
+const KEY = "ideaCategories";
 
-  const mainInput = document.getElementById("mainInput");
-  const addMainBtn = document.getElementById("addMainBtn");
-  const area = document.getElementById("categoryArea");
-  const resetBtn = document.getElementById("resetAllBtn");
+function loadCategories() {
+  return JSON.parse(localStorage.getItem(KEY)) || [];
+}
 
-  function loadCategories() {
-    return JSON.parse(localStorage.getItem(KEY)) || [];
-  }
+function saveCategories(data) {
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
 
-  function saveCategories(data) {
-    localStorage.setItem(KEY, JSON.stringify(data));
-  }
+const mainInput = document.getElementById("mainInput");
+const addMainBtn = document.getElementById("addMainBtn");
+const area = document.getElementById("categoryArea");
 
-  function render() {
-    area.innerHTML = "";
-    const categories = loadCategories();
+function render() {
+  area.innerHTML = "";
 
-    categories.forEach(cat => {
-      if (!Array.isArray(cat.subs)) cat.subs = [];
+  const categories = loadCategories();
 
-      const details = document.createElement("details");
-      details.open = true;
+  categories.forEach(cat => {
+    /* 🔥 subs 보정 (핵심) */
+    if (!Array.isArray(cat.subs)) {
+      cat.subs = [];
+    }
 
-      const summary = document.createElement("summary");
-      summary.style.display = "flex";
-      summary.style.alignItems = "center";
-      summary.style.gap = "8px";
-      summary.style.cursor = "pointer";
+    const box = document.createElement("div");
+    box.className = "category-box";
 
-      const title = document.createElement("strong");
-      title.textContent = cat.name;
-      title.style.flex = "1";
+    /* ===== 대분류 ===== */
+    const title = document.createElement("h3");
+    title.textContent = cat.name;
 
-      const delMain = document.createElement("button");
-      delMain.textContent = "삭제";
-      delMain.onclick = (e) => {
-        e.stopPropagation();
-        if (!confirm("대분류를 삭제하시겠습니까?")) return;
-        saveCategories(categories.filter(c => c.id !== cat.id));
+    const delMain = document.createElement("button");
+    delMain.textContent = "삭제";
+    delMain.onclick = () => {
+      saveCategories(categories.filter(c => c.id !== cat.id));
+      render();
+    };
+
+    box.append(title, delMain);
+
+    /* ===== 소분류 목록 ===== */
+    const subList = document.createElement("ul");
+
+    cat.subs.forEach(sub => {
+      const li = document.createElement("li");
+      li.textContent = sub.name;
+
+      const delSub = document.createElement("button");
+      delSub.textContent = "삭제";
+      delSub.onclick = () => {
+        cat.subs = cat.subs.filter(s => s.id !== sub.id);
+        saveCategories(categories);
         render();
       };
 
-      summary.append(title, delMain);
-      details.appendChild(summary);
-
-      const subList = document.createElement("ul");
-
-      cat.subs.forEach(sub => {
-        const li = document.createElement("li");
-        li.textContent = sub.name;
-
-        const delSub = document.createElement("button");
-        delSub.textContent = "삭제";
-        delSub.onclick = () => {
-          if (!confirm("소분류를 삭제하시겠습니까?")) return;
-          cat.subs = cat.subs.filter(s => s.id !== sub.id);
-          saveCategories(categories);
-          render();
-        };
-
-        li.appendChild(delSub);
-        subList.appendChild(li);
-      });
-
-      if (cat.subs.length < 10) {
-        const subInput = document.createElement("input");
-        subInput.placeholder = "소분류 입력 (최대 10개)";
-
-        const addSubBtn = document.createElement("button");
-        addSubBtn.textContent = "추가";
-        addSubBtn.onclick = () => {
-          if (!confirm("소분류를 추가하시겠습니까?")) return;
-          const name = subInput.value.trim();
-          if (!name) return;
-
-          cat.subs.push({ id: Date.now(), name });
-          saveCategories(categories);
-          render();
-        };
-
-        subList.appendChild(document.createElement("br"));
-        subList.appendChild(subInput);
-        subList.appendChild(addSubBtn);
-      }
-
-      details.appendChild(subList);
-      area.appendChild(details);
+      li.appendChild(delSub);
+      subList.appendChild(li);
     });
-  }
 
-  addMainBtn.onclick = () => {
-    if (!confirm("대분류를 추가하시겠습니까?")) return;
-    const name = mainInput.value.trim();
-    if (!name) return;
+    box.appendChild(subList);
 
-    const categories = loadCategories();
-    if (categories.length >= 5) {
-      alert("대분류는 최대 5개까지 가능합니다.");
-      return;
+    /* ===== 소분류 입력 (무조건 보임) ===== */
+    if (cat.subs.length < 10) {
+      const subInput = document.createElement("input");
+      subInput.placeholder = "소분류 입력 (최대 10개)";
+
+      const addSubBtn = document.createElement("button");
+      addSubBtn.textContent = "추가";
+      addSubBtn.onclick = () => {
+        const name = subInput.value.trim();
+        if (!name) return;
+
+        cat.subs.push({
+          id: Date.now(),
+          name
+        });
+
+        saveCategories(categories);
+        render();
+      };
+
+      box.append(subInput, addSubBtn);
     }
 
-    categories.push({
-      id: Date.now(),
-      name,
-      subs: []
-    });
+    area.appendChild(box);
+  });
 
-    saveCategories(categories);
-    mainInput.value = "";
-    render();
-  };
+  /* 🔥 보정된 구조 다시 저장 */
+  saveCategories(categories);
+}
 
-  if (resetBtn) {
-    resetBtn.onclick = () => {
-      const ok = confirm(
-        "⚠️ 모든 분류와 메모가 완전히 삭제됩니다.\n되돌릴 수 없습니다.\n\n정말 전체 리셋하시겠습니까?"
-      );
-      if (!ok) return;
+/* ===== 대분류 추가 ===== */
+addMainBtn.onclick = () => {
+  const name = mainInput.value.trim();
+  if (!name) return;
 
-      localStorage.removeItem(KEY);
-      localStorage.removeItem(MEMO_KEY);
-      alert("초기화 완료되었습니다.");
-      location.reload();
-    };
+  const categories = loadCategories();
+
+  if (categories.length >= 5) {
+    alert("대분류는 최대 5개까지 가능합니다.");
+    return;
   }
 
-  render();
-});
+  categories.push({
+    id: Date.now(),
+    name,
+    subs: [] // 🔥 처음부터 명시
+  });
+
+  saveCategories(categories);
+  mainInput.value = "";
   render();
 };
 
