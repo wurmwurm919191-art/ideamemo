@@ -42,8 +42,6 @@ mainSelect.onchange = () => {
 };
 
 addBtn.onclick = () => {
-  if (!confirm("메모를 추가하시겠습니까?")) return;
-
   const text = input.value.trim();
   const categoryId = Number(mainSelect.value);
   const subCategoryId = Number(subSelect.value);
@@ -99,27 +97,25 @@ function render() {
         const edit = document.createElement("button");
         edit.textContent = "수정";
         edit.onclick = () => {
-          const newText = prompt("내용을 수정하세요:", m.text);
+          const newText = prompt("수정할 내용을 입력하세요", m.text);
           if (newText === null) return;
           if (!confirm("수정하시겠습니까?")) return;
-          m.text = newText.trim();
-          saveMemos(loadMemos());
+
+          const memos = loadMemos();
+          const target = memos.find(x => x.id === m.id);
+          if (!target) return;
+          target.text = newText;
+          saveMemos(memos);
           render();
         };
 
         const run = document.createElement("button");
         run.textContent = "진행중";
-        run.onclick = () => {
-          if (!confirm("진행중으로 이동하시겠습니까?")) return;
-          updateStatus(m.id, "running");
-        };
+        run.onclick = () => updateStatus(m.id, "running");
 
         const done = document.createElement("button");
         done.textContent = "완료";
-        done.onclick = () => {
-          if (!confirm("완료 처리하시겠습니까?")) return;
-          updateStatus(m.id, "completed");
-        };
+        done.onclick = () => updateStatus(m.id, "completed");
 
         const del = document.createElement("button");
         del.textContent = "삭제";
@@ -142,7 +138,7 @@ function updateStatus(id, status) {
   if (!m) return;
   m.status = status;
   saveMemos(memos);
-  render();
+  render(); // ❗ 이동 없음
 }
 
 function back(text) {
@@ -155,6 +151,10 @@ function back(text) {
     render();
   };
   list.appendChild(li);
+}
+
+renderCategorySelect();
+render();
 }
 
 renderCategorySelect();
