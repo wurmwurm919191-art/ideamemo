@@ -29,8 +29,7 @@ body {
 
 #memoInput {
   flex: 1;
-  min-height: 120px;
-  resize: vertical;
+  min-height: 120px;   /* ⬅️ 이미 키워둔 상태 유지 */
 }
 
 select,
@@ -53,19 +52,18 @@ li {
   margin-bottom: 8px;
 
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap;     /* 🔥 핵심 */
   gap: 8px;
 }
 
-/* ===== memo text (🔥 여기만 수정됨) ===== */
+/* 🔥 메모 텍스트 */
 li span {
-  width: 100%;
-  white-space: pre-wrap;      /* 엔터 유지 */
-  word-break: normal;         /* 글자 단위 쪼개기 방지 */
-  overflow-wrap: break-word;  /* 모바일 정상 줄바꿈 */
+  width: 100%;         /* 🔥 버튼이 있어도 전체폭 */
+  white-space: pre-wrap; /* 🔥 엔터 유지 */
+  word-break: keep-all;  /* 🔥 글자 쪼개기 방지 */
 }
 
-/* ===== buttons ===== */
+/* 버튼 줄 */
 li button {
   white-space: nowrap;
 }
