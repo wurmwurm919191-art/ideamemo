@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <title>Idea Memo</title>
 
-  <!-- ✅ 모바일 화면 맞춤 (필수) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <!-- ✅ PWA 필수 -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ffffff">
 
@@ -18,14 +16,12 @@
 <div class="app">
   <h1>Idea Memo</h1>
 
-  <!-- 설정 버튼 -->
   <div style="text-align:right; margin-bottom: 4px;">
     <a href="settings.html">⚙ 설정</a>
   </div>
 
-  <!-- 입력 영역 -->
   <div class="input-box">
-    <input id="memoInput" placeholder="아이디어 입력">
+    <textarea id="memoInput" placeholder="아이디어 입력"></textarea>
 
     <select id="mainSelect">
       <option value="">대분류</option>
@@ -38,10 +34,8 @@
     <button id="addBtn">추가</button>
   </div>
 
-  <!-- 리스트 영역 -->
   <ul id="pendingList"></ul>
 
-  <!-- 하단 링크 -->
   <div class="nav">
     <a href="running.html">진행중</a>
     <a href="completed.html">완료</a>
@@ -51,7 +45,6 @@
 <script src="js/storage.js"></script>
 <script src="js/index.js"></script>
 
-<!-- ✅ service worker 등록 -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js");
