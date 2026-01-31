@@ -1,19 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  const KEY = "ideaCategories";
-
-  function loadCategories() {
-    return JSON.parse(localStorage.getItem(KEY)) || [];
-  }
-
-  function saveCategories(data) {
-    localStorage.setItem(KEY, JSON.stringify(data));
-  }
+  const CATEGORY_KEY = "ideaCategories";
 
   const mainInput = document.getElementById("mainInput");
   const addMainBtn = document.getElementById("addMainBtn");
   const deleteAllBtn = document.getElementById("deleteAllBtn");
+  const resetAllBtn = document.getElementById("resetAllBtn");
   const area = document.getElementById("categoryArea");
+
+  function loadCategories() {
+    return JSON.parse(localStorage.getItem(CATEGORY_KEY)) || [];
+  }
+
+  function saveCategories(data) {
+    localStorage.setItem(CATEGORY_KEY, JSON.stringify(data));
+  }
 
   function render() {
     area.innerHTML = "";
@@ -22,9 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
     categories.forEach(cat => {
       if (!Array.isArray(cat.subs)) cat.subs = [];
 
-      /* ===== 🔥 HTML 기본 토글 ===== */
       const details = document.createElement("details");
-      details.open = true; // 항상 토글 상태로 시작
+      details.open = true;
 
       const summary = document.createElement("summary");
       summary.style.display = "flex";
@@ -41,22 +41,20 @@ document.addEventListener("DOMContentLoaded", () => {
       delMain.onclick = (e) => {
         e.stopPropagation();
         if (!confirm("대분류를 삭제하시겠습니까?")) return;
-        saveCategories(categories.filter(c => c.id !== cat.id));
+        saveCategories(loadCategories().filter(c => c.id !== cat.id));
         render();
       };
 
       summary.append(title, delMain);
       details.appendChild(summary);
 
-      /* ===== 소분류 영역 ===== */
-      const subArea = document.createElement("div");
-      subArea.style.marginTop = "8px";
-
       const subList = document.createElement("ul");
 
       cat.subs.forEach(sub => {
         const li = document.createElement("li");
-        li.textContent = sub.name;
+
+        const name = document.createElement("span");
+        name.textContent = sub.name;
 
         const delSub = document.createElement("button");
         delSub.textContent = "삭제";
@@ -67,11 +65,11 @@ document.addEventListener("DOMContentLoaded", () => {
           render();
         };
 
-        li.appendChild(delSub);
+        li.append(name, delSub);
         subList.appendChild(li);
       });
 
-      subArea.appendChild(subList);
+      details.appendChild(subList);
 
       if (cat.subs.length < 10) {
         const subInput = document.createElement("input");
@@ -80,26 +78,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const addSubBtn = document.createElement("button");
         addSubBtn.textContent = "추가";
         addSubBtn.onclick = () => {
-          if (!confirm("소분류를 추가하시겠습니까?")) return;
           const name = subInput.value.trim();
           if (!name) return;
-
           cat.subs.push({ id: Date.now(), name });
           saveCategories(categories);
           render();
         };
 
-        subArea.append(subInput, addSubBtn);
+        details.append(subInput, addSubBtn);
       }
 
-      details.appendChild(subArea);
       area.appendChild(details);
     });
   }
 
-  /* ===== 대분류 추가 ===== */
   addMainBtn.onclick = () => {
-    if (!confirm("대분류를 추가하시겠습니까?")) return;
     const name = mainInput.value.trim();
     if (!name) return;
 
@@ -109,42 +102,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    categories.push({
-      id: Date.now(),
-      name,
-      subs: []
-    });
-
+    categories.push({ id: Date.now(), name, subs: [] });
     saveCategories(categories);
     mainInput.value = "";
     render();
   };
 
-  /* ===== 전체 삭제 ===== */
   deleteAllBtn.onclick = () => {
-    if (!confirm("⚠ 모든 분류를 삭제하시겠습니까?\n되돌릴 수 없습니다.")) return;
-    localStorage.removeItem(KEY);
+    if (!confirm("모든 분류를 삭제하시겠습니까?")) return;
+    localStorage.removeItem(CATEGORY_KEY);
     render();
+  };
+
+  resetAllBtn.onclick = () => {
+    if (!confirm("⚠️ 모든 메모와 분류가 삭제됩니다.\n되돌릴 수 없습니다.")) return;
+    localStorage.clear();
+    alert("전체 초기화 완료");
+    location.reload();
   };
 
   render();
 });
 
-  normalizeCategories();
-  render();
-});
-const resetBtn = document.getElementById("resetAllBtn");
-
-if (resetBtn) {
-  resetBtn.addEventListener("click", () => {
-    const ok = confirm(
-      "⚠️ 모든 분류와 메모가 완전히 삭제됩니다.\n되돌릴 수 없습니다.\n\n정말 전체 리셋하시겠습니까?"
-    );
-
-    if (!ok) return;
-
-    localStorage.clear();
-    alert("전체 데이터가 초기화되었습니다.");
-    location.reload();
-  });
-}
