@@ -29,7 +29,8 @@ body {
 
 #memoInput {
   flex: 1;
-  min-height: 120px;   /* ⬅️ 이미 키워둔 상태 유지 */
+  min-height: 120px;
+  resize: vertical;
 }
 
 select,
@@ -52,18 +53,19 @@ li {
   margin-bottom: 8px;
 
   display: flex;
-  flex-wrap: wrap;     /* 🔥 핵심 */
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-/* 🔥 메모 텍스트 */
+/* ===== memo text ===== */
 li span {
-  width: 100%;         /* 🔥 버튼이 있어도 전체폭 */
-  white-space: pre-wrap; /* 🔥 엔터 유지 */
-  word-break: keep-all;  /* 🔥 글자 쪼개기 방지 */
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
-/* 버튼 줄 */
+/* ===== buttons ===== */
 li button {
   white-space: nowrap;
 }
@@ -75,7 +77,7 @@ li button {
   justify-content: space-between;
 }
 
-/* ===== 모바일 ===== */
+/* ===== 모바일 레이아웃 ===== */
 @media (max-width: 600px) {
   .input-box {
     flex-direction: column;
@@ -85,5 +87,22 @@ li button {
   .input-box select,
   .input-box button {
     width: 100%;
+  }
+
+  /* 🔥 모바일 텍스트 깨짐 완전 차단 */
+  li {
+    display: block;
+  }
+
+  li span {
+    display: block;
+    width: 100%;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  li button {
+    margin-top: 6px;
   }
 }
