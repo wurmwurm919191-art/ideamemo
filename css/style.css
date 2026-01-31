@@ -1,3 +1,4 @@
+/* ===== reset ===== */
 * {
   box-sizing: border-box;
 }
@@ -9,6 +10,7 @@ body {
   font-family: system-ui, sans-serif;
 }
 
+/* ===== app ===== */
 .app {
   width: 100%;
   max-width: 600px;
@@ -18,25 +20,25 @@ body {
   border-radius: 12px;
 }
 
+/* ===== input area ===== */
 .input-box {
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
 }
 
-textarea {
+/* 기본(PC) */
+#memoInput {
   flex: 1;
-  min-height: 120px;
-  resize: vertical;
 }
 
 select,
 button {
   padding: 10px;
   font-size: 16px;
-  cursor: pointer;
 }
 
+/* ===== list ===== */
 ul {
   list-style: none;
   padding: 0;
@@ -54,37 +56,34 @@ li {
   gap: 8px;
 }
 
-/* ✅ 메모 텍스트 */
 li span {
   flex: 1;
-  white-space: pre-wrap;
-
-  /* 🔥🔥🔥 핵심 해결 */
-  pointer-events: none;   /* span이 클릭 가로채지 못하게 */
+  word-break: break-word;
 }
 
-/* 버튼은 정상 클릭 */
 li button {
-  pointer-events: auto;
+  white-space: nowrap;
 }
 
+/* ===== nav ===== */
 .nav {
   margin-top: 16px;
   display: flex;
   justify-content: space-between;
 }
 
-/* ===== 모바일 ===== */
+/* =========================
+   ✅ 모바일 전용 (핵심)
+========================= */
 @media (max-width: 600px) {
+
   .input-box {
-    flex-direction: column;
+    flex-direction: column;   /* ❗ 세로 배치 */
   }
 
-  textarea,
-  select,
-  button {
-    width: 100%;
+  #memoInput,
+  .input-box select,
+  .input-box button {
+    width: 100%;              /* ❗ 화면 꽉 채움 */
   }
-
-  /* ❗ flex 유지 (block으로 바꾸지 말 것) */
 }
