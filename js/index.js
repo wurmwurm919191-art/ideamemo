@@ -138,7 +138,7 @@ function updateStatus(id, status) {
   if (!m) return;
   m.status = status;
   saveMemos(memos);
-  render(); // ❗ 이동 없음
+  render();
 }
 
 function back(text) {
@@ -151,10 +151,6 @@ function back(text) {
     render();
   };
   list.appendChild(li);
-}
-
-renderCategorySelect();
-render();
 }
 
 renderCategorySelect();
