@@ -182,3 +182,7 @@ function back(text) {
 // 초기화
 renderCategorySelect();
 render();
+
+// 초기화
+renderCategorySelect();
+render();
