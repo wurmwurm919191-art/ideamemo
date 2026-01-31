@@ -1,28 +1,115 @@
-.category-main,
-.category-sub {
+알겠어요!
+이제 css/style.css 전체 코드를 완전히 새로 만들어서 드릴게요.
+기존에 있던 모든 스타일을 유지하면서, 토글 화살표가 확실히 보이고, 분류 설정 화면과 메인 화면의 버튼 위치(오른쪽 아래), 계층 구분까지 모두 완벽하게 적용된 버전입니다.
+이 코드를 css/style.css 파일에 전체 복붙하시면 됩니다.
+그리고 js/index.js와 js/settings.js는 이전에 드린 최신 버전 그대로 사용하세요.
+css/style.css 전체 코드 (복붙용)
+CSS* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+  background: #f4f6f8;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.app {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.input-box {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+textarea {
+  flex: 1 1 100%;
+  min-height: 110px;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+select,
+button,
+input {
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  font-weight: 500;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ── 토글 메인 화면 스타일 ── */
+.category-main {
+  background: #e0f2fe;
+  font-weight: 600;
   padding: 12px 16px;
-  margin: 6px 0;
+  margin: 8px 0;
   border-radius: 8px;
   cursor: pointer;
   user-select: none;
 }
 
-.category-main {
-  background: #e0f2fe;
-  font-weight: 600;
+.category-main:hover {
+  background: #d1e3ff;
 }
 
 .category-sub {
   background: #f3f4f6;
-  margin-left: 28px;
+  margin-left: 32px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.category-sub:hover {
+  background: #e5e7eb;
 }
 
 .memo-item {
   background: white;
   border: 1px solid #e5e7eb;
+  padding: 14px 16px;
+  margin: 8px 0 8px 56px;
   border-radius: 8px;
-  padding: 12px 16px;
-  margin: 8px 0 8px 48px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -32,13 +119,14 @@
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+  font-size: 1.05rem;
 }
 
 .memo-buttons {
   display: flex;
+  justify-content: flex-end;
   gap: 8px;
-  justify-content: flex-end;          /* 오른쪽 정렬 */
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .memo-buttons button {
@@ -46,7 +134,7 @@
   font-size: 0.9rem;
   border-radius: 6px;
   border: 1px solid #d1d5db;
-  background: #f3f4f6;
+  background: #f9fafb;
   cursor: pointer;
 }
 
@@ -54,30 +142,171 @@
   background: #e5e7eb;
 }
 
+.memo-buttons button:nth-child(2) {
+  background: #f59e0b;
+  color: white;
+  border: none;
+} /* 진행중 버튼 색상 */
+
+.memo-buttons button:nth-child(3) {
+  background: #10b981;
+  color: white;
+  border: none;
+} /* 완료 버튼 색상 */
+
+/* 토글 화살표 */
 .toggle-arrow {
   display: inline-block;
-  min-width: 1.4em;
+  width: 24px;
   text-align: center;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #374151;
   margin-right: 8px;
 }
 
+/* 빈 메모 안내 */
+.empty {
+  color: #9ca3af;
+  font-style: italic;
+  margin-left: 56px;
+  padding: 12px 0;
+}
+
+/* ── 분류 설정 화면 스타일 ── */
+.category-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.category-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.btn-delete-main {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.sub-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+.sub-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.btn-delete-sub {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.add-sub-box {
+  display: flex;
+  gap: 8px;
+}
+
+.add-sub-box input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.add-sub-box button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.empty-sub {
+  color: #9ca3af;
+  font-style: italic;
+  text-align: center;
+  margin: 16px 0;
+}
+
 /* 모바일 대응 */
 @media (max-width: 600px) {
+  .app {
+    padding: 12px;
+  }
+
+  .input-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  textarea,
+  select,
+  button,
+  input {
+    width: 100%;
+  }
+
   .memo-item {
     margin-left: 32px;
   }
+
   .category-sub {
     margin-left: 20px;
   }
+
   .memo-buttons {
-    flex-wrap: wrap;
     justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .category-main,
+  .category-sub {
+    margin-left: 0;
+    margin-right: 0;
   }
 }
-  .memo-controls {
-    justify-content: flex-start;
-  }
+
+/* 기타 기존 스타일 유지 */
+.nav {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  font-size: 0.95rem;
+  color: #3b82f6;
+}
+
+a {
+  color: #3b82f6;
+  text-decoration: none;
 }
