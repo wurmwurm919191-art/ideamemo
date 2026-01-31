@@ -1,7 +1,4 @@
-/* ===== reset ===== */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -10,7 +7,6 @@ body {
   font-family: system-ui, sans-serif;
 }
 
-/* ===== app ===== */
 .app {
   width: 100%;
   max-width: 600px;
@@ -20,25 +16,23 @@ body {
   border-radius: 12px;
 }
 
-/* ===== input area ===== */
 .input-box {
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
 }
 
-#memoInput {
+textarea {
   flex: 1;
-  min-height: 120px;   /* ⬅️ 이미 키워둔 상태 유지 */
+  min-height: 120px; /* 🔥 기존 대비 3배 */
+  resize: vertical;
 }
 
-select,
-button {
+select, button {
   padding: 10px;
   font-size: 16px;
 }
 
-/* ===== list ===== */
 ul {
   list-style: none;
   padding: 0;
@@ -50,40 +44,28 @@ li {
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 8px;
-
   display: flex;
-  flex-wrap: wrap;     /* 🔥 핵심 */
+  align-items: center;
   gap: 8px;
 }
 
-/* 🔥 메모 텍스트 */
 li span {
-  width: 100%;         /* 🔥 버튼이 있어도 전체폭 */
-  white-space: pre-wrap; /* 🔥 엔터 유지 */
-  word-break: keep-all;  /* 🔥 글자 쪼개기 방지 */
+  flex: 1;
+  white-space: pre-wrap;
 }
 
-/* 버튼 줄 */
-li button {
-  white-space: nowrap;
-}
-
-/* ===== nav ===== */
 .nav {
   margin-top: 16px;
   display: flex;
   justify-content: space-between;
 }
 
-/* ===== 모바일 ===== */
 @media (max-width: 600px) {
   .input-box {
     flex-direction: column;
   }
 
-  #memoInput,
-  .input-box select,
-  .input-box button {
+  textarea, select, button {
     width: 100%;
   }
 }
