@@ -2,8 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const KEY = "ideaCategories";
 
+  /* ===== 안전한 로드 ===== */
   function loadCategories() {
-    return JSON.parse(localStorage.getItem(KEY)) || [];
+    try {
+      const data = localStorage.getItem(KEY);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      localStorage.removeItem(KEY);
+      return [];
+    }
   }
 
   function saveCategories(data) {
@@ -16,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetAllBtn = document.getElementById("resetAllBtn");
   const area = document.getElementById("categoryArea");
 
+  /* ===== 렌더 ===== */
   function render() {
     area.innerHTML = "";
     const categories = loadCategories();
@@ -30,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
       summary.style.display = "flex";
       summary.style.alignItems = "center";
       summary.style.gap = "8px";
-      summary.style.cursor = "pointer";
 
       const title = document.createElement("strong");
       title.textContent = cat.name;
@@ -51,13 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const subArea = document.createElement("div");
       subArea.style.marginTop = "8px";
 
-      const subList = document.createElement("ul");
+      const ul = document.createElement("ul");
 
       cat.subs.forEach(sub => {
         const li = document.createElement("li");
-
-        const name = document.createElement("span");
-        name.textContent = sub.name;
+        li.textContent = sub.name;
 
         const delSub = document.createElement("button");
         delSub.textContent = "삭제";
@@ -68,11 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
           render();
         };
 
-        li.append(name, delSub);
-        subList.appendChild(li);
+        li.appendChild(delSub);
+        ul.appendChild(li);
       });
 
-      subArea.appendChild(subList);
+      subArea.appendChild(ul);
 
       if (cat.subs.length < 10) {
         const subInput = document.createElement("input");
@@ -81,10 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const addSubBtn = document.createElement("button");
         addSubBtn.textContent = "추가";
         addSubBtn.onclick = () => {
-          if (!confirm("소분류를 추가하시겠습니까?")) return;
           const name = subInput.value.trim();
           if (!name) return;
-
           cat.subs.push({ id: Date.now(), name });
           saveCategories(categories);
           render();
@@ -98,8 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  /* ===== 이벤트 ===== */
   addMainBtn.onclick = () => {
-    if (!confirm("대분류를 추가하시겠습니까?")) return;
     const name = mainInput.value.trim();
     if (!name) return;
 
@@ -109,35 +112,26 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    categories.push({
-      id: Date.now(),
-      name,
-      subs: []
-    });
-
+    categories.push({ id: Date.now(), name, subs: [] });
     saveCategories(categories);
     mainInput.value = "";
     render();
   };
 
   deleteAllBtn.onclick = () => {
-    if (!confirm("⚠ 모든 분류를 삭제하시겠습니까?\n되돌릴 수 없습니다.")) return;
+    if (!confirm("⚠ 모든 분류를 삭제하시겠습니까?")) return;
     localStorage.removeItem(KEY);
     render();
   };
 
-  if (resetAllBtn) {
-    resetAllBtn.onclick = () => {
-      if (!confirm("⚠ 모든 분류와 메모가 삭제됩니다.\n되돌릴 수 없습니다.")) return;
-      localStorage.clear();
-      alert("전체 데이터가 초기화되었습니다.");
-      location.reload();
-    };
-  }
+  resetAllBtn.onclick = () => {
+    if (!confirm("⚠ 모든 분류와 메모가 삭제됩니다.\n되돌릴 수 없습니다.")) return;
+    localStorage.clear();
+    location.reload();
+  };
 
   render();
 });
-
   render();
 });
 
