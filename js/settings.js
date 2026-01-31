@@ -14,98 +14,114 @@ const area = document.getElementById("categoryArea");
 
 function render() {
   area.innerHTML = "";
-
   const categories = loadCategories();
 
+  if (categories.length === 0) {
+    area.innerHTML = '<p style="color:#9ca3af; text-align:center; padding:24px 0;">아직 대분류가 없습니다.<br>위 입력란에서 추가해주세요.</p>';
+  }
+
   categories.forEach(cat => {
-    /* 🔥 subs 보정 (핵심) */
-    if (!Array.isArray(cat.subs)) {
-      cat.subs = [];
-    }
+    if (!Array.isArray(cat.subs)) cat.subs = [];
 
     const box = document.createElement("div");
     box.className = "category-box";
 
-    /* ===== 대분류 ===== */
-    const title = document.createElement("h3");
-    title.textContent = cat.name;
+    // 대분류 제목 + 삭제 버튼
+    const header = document.createElement("div");
+    header.className = "category-header";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = cat.name;
 
     const delMain = document.createElement("button");
-    delMain.textContent = "삭제";
+    delMain.className = "btn-delete-main";
+    delMain.textContent = "대분류 삭제";
     delMain.onclick = () => {
+      if (!confirm(`"${cat.name}" 대분류와 하위 모든 소분류를 삭제하시겠습니까?`)) return;
       saveCategories(categories.filter(c => c.id !== cat.id));
       render();
     };
 
-    box.append(title, delMain);
+    header.append(h3, delMain);
+    box.appendChild(header);
 
-    /* ===== 소분류 목록 ===== */
-    const subList = document.createElement("ul");
+    // 소분류 목록
+    const subUl = document.createElement("ul");
+    subUl.className = "sub-list";
 
-    cat.subs.forEach(sub => {
-      const li = document.createElement("li");
-      li.textContent = sub.name;
+    if (cat.subs.length === 0) {
+      const emptyP = document.createElement("p");
+      emptyP.className = "empty-sub";
+      emptyP.textContent = "소분류가 없습니다";
+      box.appendChild(emptyP);
+    } else {
+      cat.subs.forEach(sub => {
+        const li = document.createElement("li");
+        li.className = "sub-item";
 
-      const delSub = document.createElement("button");
-      delSub.textContent = "삭제";
-      delSub.onclick = () => {
-        cat.subs = cat.subs.filter(s => s.id !== sub.id);
-        saveCategories(categories);
-        render();
-      };
+        const span = document.createElement("span");
+        span.textContent = sub.name;
 
-      li.appendChild(delSub);
-      subList.appendChild(li);
-    });
+        const delSub = document.createElement("button");
+        delSub.className = "btn-delete-sub";
+        delSub.textContent = "삭제";
+        delSub.onclick = () => {
+          if (!confirm(`"${sub.name}" 소분류를 삭제하시겠습니까?`)) return;
+          cat.subs = cat.subs.filter(s => s.id !== sub.id);
+          saveCategories(categories);
+          render();
+        };
 
-    box.appendChild(subList);
+        li.append(span, delSub);
+        subUl.appendChild(li);
+      });
+      box.appendChild(subUl);
+    }
 
-    /* ===== 소분류 입력 (무조건 보임) ===== */
+    // 소분류 추가 영역
     if (cat.subs.length < 10) {
-      const subInput = document.createElement("input");
-      subInput.placeholder = "소분류 입력 (최대 10개)";
+      const addBox = document.createElement("div");
+      addBox.className = "add-sub-box";
 
-      const addSubBtn = document.createElement("button");
-      addSubBtn.textContent = "추가";
-      addSubBtn.onclick = () => {
-        const name = subInput.value.trim();
+      const inp = document.createElement("input");
+      inp.placeholder = "소분류 이름 입력";
+      inp.maxLength = 30;
+
+      const btn = document.createElement("button");
+      btn.textContent = "소분류 추가";
+      btn.onclick = () => {
+        const name = inp.value.trim();
         if (!name) return;
-
-        cat.subs.push({
-          id: Date.now(),
-          name
-        });
-
+        cat.subs.push({ id: Date.now(), name });
         saveCategories(categories);
+        inp.value = "";
         render();
       };
 
-      box.append(subInput, addSubBtn);
+      addBox.append(inp, btn);
+      box.appendChild(addBox);
     }
 
     area.appendChild(box);
   });
 
-  /* 🔥 보정된 구조 다시 저장 */
-  saveCategories(categories);
+  saveCategories(categories); // 구조 보정 저장
 }
 
-/* ===== 대분류 추가 ===== */
 addMainBtn.onclick = () => {
   const name = mainInput.value.trim();
-  if (!name) return;
+  if (!name) return alert("대분류 이름을 입력하세요.");
 
   const categories = loadCategories();
-
   if (categories.length >= 5) {
-    alert("대분류는 최대 5개까지 가능합니다.");
+    alert("대분류는 최대 5개까지만 만들 수 있습니다.");
     return;
   }
 
   categories.push({
     id: Date.now(),
     name,
-    subs: [] // 🔥 처음부터 명시
+    subs: []
   });
 
   saveCategories(categories);
