@@ -39,36 +39,37 @@ button {
   font-size: 16px;
 }
 
-/* ===== list ===== */
+/* ===== list (공통) ===== */
 ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/* 🔥 핵심: 메모 li는 flex 쓰지 않는다 */
-li {
+/* =================================================
+   🔥 메모 리스트 전용 스타일 (핵심)
+   설정 페이지에는 절대 영향 안 줌
+================================================= */
+
+#pendingList > li {
   background: #f1f5f9;
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 8px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-/* ===== memo text ===== */
-li span {
-  display: block;
+#pendingList > li span {
   width: 100%;
   white-space: pre-wrap;
   word-break: keep-all;
   overflow-wrap: anywhere;
-  margin-bottom: 8px;
 }
 
-/* ===== buttons ===== */
-li button {
-  display: inline-block;
-  margin-right: 6px;
-  margin-top: 4px;
+#pendingList > li button {
   white-space: nowrap;
 }
 
@@ -91,7 +92,20 @@ li button {
     width: 100%;
   }
 
-  li button {
-    width: auto;
+  /* 🔥 모바일 메모만 block 처리 */
+  #pendingList > li {
+    display: block;
+  }
+
+  #pendingList > li span {
+    display: block;
+    width: 100%;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  #pendingList > li button {
+    margin-top: 6px;
   }
 }
