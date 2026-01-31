@@ -4,7 +4,11 @@ const list = document.getElementById("pendingList");
 const mainSelect = document.getElementById("mainSelect");
 const subSelect = document.getElementById("subSelect");
 
-let view = { level: "main", mainId: null, subId: null };
+// 열린 상태 관리 (새로고침 시 초기화)
+const opened = {
+  mains: new Set(),
+  subs: new Set()  // "mainId-subId" 형식
+};
 
 function loadCategories() {
   return JSON.parse(localStorage.getItem("ideaCategories")) || [];
@@ -22,7 +26,6 @@ function renderCategorySelect() {
   const categories = loadCategories();
   mainSelect.innerHTML = `<option value="">대분류</option>`;
   subSelect.innerHTML = `<option value="">소분류</option>`;
-  
   categories.forEach(c => {
     const o = document.createElement("option");
     o.value = c.id;
@@ -35,7 +38,6 @@ mainSelect.onchange = () => {
   const cat = loadCategories().find(c => c.id === Number(mainSelect.value));
   subSelect.innerHTML = `<option value="">소분류</option>`;
   if (!cat) return;
-  
   cat.subs.forEach(s => {
     const o = document.createElement("option");
     o.value = s.id;
@@ -48,138 +50,138 @@ addBtn.onclick = () => {
   const text = input.value.trim();
   const categoryId = Number(mainSelect.value);
   const subCategoryId = Number(subSelect.value);
-
-  if (!text || !categoryId || !subCategoryId) return;
-
+  if (!text || !categoryId || !subCategoryId) {
+    alert("아이디어와 분류를 모두 선택해주세요.");
+    return;
+  }
   const memos = loadMemos();
-  memos.push({
-    id: Date.now(),
-    text,
-    status: "pending",
-    categoryId,
-    subCategoryId
-  });
+  memos.push({ id: Date.now(), text, status: "pending", categoryId, subCategoryId });
   saveMemos(memos);
   input.value = "";
   render();
 };
 
-function render() {
-  list.innerHTML = "";
-  const categories = loadCategories();
-  // subs 배열이 없으면 빈 배열로 초기화 (안전장치)
-  categories.forEach(c => { if (!Array.isArray(c.subs)) c.subs = []; });
+function isMainOpen(id) { return opened.mains.has(id); }
+function isSubOpen(mainId, subId) { return opened.subs.has(`${mainId}-${subId}`); }
 
-  const memos = loadMemos().filter(m => m.status === "pending");
+function toggleMain(id) {
+  if (opened.mains.has(id)) opened.mains.delete(id);
+  else opened.mains.add(id);
+  render();
+}
 
-  if (view.level === "main") {
-    categories.forEach(cat => {
-      const li = document.createElement("li");
-      li.textContent = "📁 " + cat.name;
-      li.onclick = () => {
-        view = { level: "sub", mainId: cat.id };
-        render();
-      };
-      list.appendChild(li);
-    });
-    return;
-  }
-
-  if (view.level === "sub") {
-    back("대분류로");
-    const cat = categories.find(c => c.id === view.mainId);
-    if (!cat) return;
-
-    cat.subs.forEach(sub => {
-      const li = document.createElement("li");
-      li.textContent = "📂 " + sub.name;
-      li.onclick = () => {
-        view = { level: "memo", mainId: cat.id, subId: sub.id };
-        render();
-      };
-      list.appendChild(li);
-    });
-    return;
-  }
-
-  if (view.level === "memo") {
-    back("소분류로");
-
-    memos
-      .filter(m => m.categoryId === view.mainId && m.subCategoryId === view.subId)
-      .forEach(m => {
-        const li = document.createElement("li");
-
-        const textSpan = document.createElement("span");
-        textSpan.textContent = m.text;
-
-        const btns = document.createElement("div");
-
-        const edit = document.createElement("button");
-        edit.textContent = "수정";
-        edit.onclick = () => {
-          const newText = prompt("수정할 내용을 입력하세요", m.text);
-          if (newText === null) return;
-          if (newText.trim() === m.text) return; // 같은 내용이면 무시 (선택)
-
-          if (!confirm("수정하시겠습니까?")) return;
-
-          const allMemos = loadMemos();
-          const target = allMemos.find(x => x.id === m.id);
-          if (target) {
-            target.text = newText.trim();
-            saveMemos(allMemos);
-            render();
-          }
-        };
-
-        const run = document.createElement("button");
-        run.textContent = "진행중";
-        run.onclick = () => updateStatus(m.id, "running");
-
-        const done = document.createElement("button");
-        done.textContent = "완료";
-        done.onclick = () => updateStatus(m.id, "completed");
-
-        const del = document.createElement("button");
-        del.textContent = "삭제";
-        del.onclick = () => {
-          if (!confirm("삭제하시겠습니까?")) return;
-          saveMemos(loadMemos().filter(x => x.id !== m.id));
-          render();
-        };
-
-        btns.append(edit, run, done, del);
-        li.append(textSpan, btns);
-        list.appendChild(li);
-      });
-  }
+function toggleSub(mainId, subId) {
+  const key = `${mainId}-${subId}`;
+  if (opened.subs.has(key)) opened.subs.delete(key);
+  else opened.subs.add(key);
+  render();
 }
 
 function updateStatus(id, status) {
   const memos = loadMemos();
   const m = memos.find(x => x.id === id);
-  if (!m) return;
-  m.status = status;
-  saveMemos(memos);
-  render();
-}
-
-function back(text) {
-  const li = document.createElement("li");
-  li.textContent = "← " + text;
-  li.onclick = () => {
-    if (view.level === "memo") {
-      view = { level: "sub", mainId: view.mainId };
-    } else {
-      view = { level: "main" };
-    }
+  if (m) {
+    m.status = status;
+    saveMemos(memos);
     render();
-  };
-  list.appendChild(li);
+  }
 }
 
-// 초기화
+function render() {
+  list.innerHTML = "";
+  const categories = loadCategories();
+  categories.forEach(c => { if (!Array.isArray(c.subs)) c.subs = []; });
+
+  const pendingMemos = loadMemos().filter(m => m.status === "pending");
+
+  categories.forEach(cat => {
+    // 대분류
+    const mainLi = document.createElement("li");
+    mainLi.className = "category-main";
+    mainLi.innerHTML = `
+      <span class="toggle-arrow">${isMainOpen(cat.id) ? "▼" : "▶"}</span>
+      📁 ${cat.name}
+    `;
+    mainLi.onclick = (e) => { e.stopPropagation(); toggleMain(cat.id); };
+    list.appendChild(mainLi);
+
+    if (!isMainOpen(cat.id)) return;
+
+    // 소분류들
+    cat.subs.forEach(sub => {
+      const subLi = document.createElement("li");
+      subLi.className = "category-sub";
+      subLi.innerHTML = `
+        <span class="toggle-arrow">${isSubOpen(cat.id, sub.id) ? "▼" : "▶"}</span>
+        📂 ${sub.name}
+      `;
+      subLi.onclick = (e) => { e.stopPropagation(); toggleSub(cat.id, sub.id); };
+      list.appendChild(subLi);
+
+      if (!isSubOpen(cat.id, sub.id)) return;
+
+      // 메모들
+      const memosInSub = pendingMemos.filter(m => m.categoryId === cat.id && m.subCategoryId === sub.id);
+      memosInSub.forEach(m => {
+        const memoLi = document.createElement("li");
+        memoLi.className = "memo-item";
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = m.text;
+
+        const controls = document.createElement("div");
+        controls.className = "memo-controls";
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "수정";
+        editBtn.onclick = (e) => {
+          e.stopPropagation();
+          const newText = prompt("수정할 내용", m.text);
+          if (newText === null || newText.trim() === m.text) return;
+          if (!confirm("수정하시겠습니까?")) return;
+          const all = loadMemos();
+          const target = all.find(x => x.id === m.id);
+          if (target) {
+            target.text = newText.trim();
+            saveMemos(all);
+            render();
+          }
+        };
+
+        const runBtn = document.createElement("button");
+        runBtn.textContent = "진행중";
+        runBtn.onclick = (e) => { e.stopPropagation(); updateStatus(m.id, "running"); };
+
+        const doneBtn = document.createElement("button");
+        doneBtn.textContent = "완료";
+        doneBtn.onclick = (e) => { e.stopPropagation(); updateStatus(m.id, "completed"); };
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "삭제";
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (!confirm("삭제하시겠습니까?")) return;
+          saveMemos(loadMemos().filter(x => x.id !== m.id));
+          render();
+        };
+
+        controls.append(editBtn, runBtn, doneBtn, delBtn);
+
+        memoLi.append(textSpan, controls);
+        list.appendChild(memoLi);
+      });
+
+      if (memosInSub.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty";
+        empty.textContent = "메모 없음";
+        list.appendChild(empty);
+      }
+    });
+  });
+}
+
+// 초기 실행
 renderCategorySelect();
 render();
 
