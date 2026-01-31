@@ -1,137 +1,116 @@
-document.addEventListener("DOMContentLoaded", () => {
+const KEY = "ideaCategories";
 
-  const KEY = "ideaCategories";
+function loadCategories() {
+  return JSON.parse(localStorage.getItem(KEY)) || [];
+}
 
-  /* ===== 안전한 로드 ===== */
-  function loadCategories() {
-    try {
-      const data = localStorage.getItem(KEY);
-      return data ? JSON.parse(data) : [];
-    } catch {
-      localStorage.removeItem(KEY);
-      return [];
+function saveCategories(data) {
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
+
+const mainInput = document.getElementById("mainInput");
+const addMainBtn = document.getElementById("addMainBtn");
+const area = document.getElementById("categoryArea");
+
+function render() {
+  area.innerHTML = "";
+
+  const categories = loadCategories();
+
+  categories.forEach(cat => {
+    /* 🔥 subs 보정 (핵심) */
+    if (!Array.isArray(cat.subs)) {
+      cat.subs = [];
     }
-  }
 
-  function saveCategories(data) {
-    localStorage.setItem(KEY, JSON.stringify(data));
-  }
+    const box = document.createElement("div");
+    box.className = "category-box";
 
-  const mainInput = document.getElementById("mainInput");
-  const addMainBtn = document.getElementById("addMainBtn");
-  const deleteAllBtn = document.getElementById("deleteAllBtn");
-  const resetAllBtn = document.getElementById("resetAllBtn");
-  const area = document.getElementById("categoryArea");
+    /* ===== 대분류 ===== */
+    const title = document.createElement("h3");
+    title.textContent = cat.name;
 
-  /* ===== 렌더 ===== */
-  function render() {
-    area.innerHTML = "";
-    const categories = loadCategories();
+    const delMain = document.createElement("button");
+    delMain.textContent = "삭제";
+    delMain.onclick = () => {
+      saveCategories(categories.filter(c => c.id !== cat.id));
+      render();
+    };
 
-    categories.forEach(cat => {
-      if (!Array.isArray(cat.subs)) cat.subs = [];
+    box.append(title, delMain);
 
-      const details = document.createElement("details");
-      details.open = true;
+    /* ===== 소분류 목록 ===== */
+    const subList = document.createElement("ul");
 
-      const summary = document.createElement("summary");
-      summary.style.display = "flex";
-      summary.style.alignItems = "center";
-      summary.style.gap = "8px";
+    cat.subs.forEach(sub => {
+      const li = document.createElement("li");
+      li.textContent = sub.name;
 
-      const title = document.createElement("strong");
-      title.textContent = cat.name;
-      title.style.flex = "1";
-
-      const delMain = document.createElement("button");
-      delMain.textContent = "삭제";
-      delMain.onclick = (e) => {
-        e.stopPropagation();
-        if (!confirm("대분류를 삭제하시겠습니까?")) return;
-        saveCategories(categories.filter(c => c.id !== cat.id));
+      const delSub = document.createElement("button");
+      delSub.textContent = "삭제";
+      delSub.onclick = () => {
+        cat.subs = cat.subs.filter(s => s.id !== sub.id);
+        saveCategories(categories);
         render();
       };
 
-      summary.append(title, delMain);
-      details.appendChild(summary);
-
-      const subArea = document.createElement("div");
-      subArea.style.marginTop = "8px";
-
-      const ul = document.createElement("ul");
-
-      cat.subs.forEach(sub => {
-        const li = document.createElement("li");
-        li.textContent = sub.name;
-
-        const delSub = document.createElement("button");
-        delSub.textContent = "삭제";
-        delSub.onclick = () => {
-          if (!confirm("소분류를 삭제하시겠습니까?")) return;
-          cat.subs = cat.subs.filter(s => s.id !== sub.id);
-          saveCategories(categories);
-          render();
-        };
-
-        li.appendChild(delSub);
-        ul.appendChild(li);
-      });
-
-      subArea.appendChild(ul);
-
-      if (cat.subs.length < 10) {
-        const subInput = document.createElement("input");
-        subInput.placeholder = "소분류 입력 (최대 10개)";
-
-        const addSubBtn = document.createElement("button");
-        addSubBtn.textContent = "추가";
-        addSubBtn.onclick = () => {
-          const name = subInput.value.trim();
-          if (!name) return;
-          cat.subs.push({ id: Date.now(), name });
-          saveCategories(categories);
-          render();
-        };
-
-        subArea.append(subInput, addSubBtn);
-      }
-
-      details.appendChild(subArea);
-      area.appendChild(details);
+      li.appendChild(delSub);
+      subList.appendChild(li);
     });
-  }
 
-  /* ===== 이벤트 ===== */
-  addMainBtn.onclick = () => {
-    const name = mainInput.value.trim();
-    if (!name) return;
+    box.appendChild(subList);
 
-    const categories = loadCategories();
-    if (categories.length >= 5) {
-      alert("대분류는 최대 5개까지 가능합니다.");
-      return;
+    /* ===== 소분류 입력 (무조건 보임) ===== */
+    if (cat.subs.length < 10) {
+      const subInput = document.createElement("input");
+      subInput.placeholder = "소분류 입력 (최대 10개)";
+
+      const addSubBtn = document.createElement("button");
+      addSubBtn.textContent = "추가";
+      addSubBtn.onclick = () => {
+        const name = subInput.value.trim();
+        if (!name) return;
+
+        cat.subs.push({
+          id: Date.now(),
+          name
+        });
+
+        saveCategories(categories);
+        render();
+      };
+
+      box.append(subInput, addSubBtn);
     }
 
-    categories.push({ id: Date.now(), name, subs: [] });
-    saveCategories(categories);
-    mainInput.value = "";
-    render();
-  };
+    area.appendChild(box);
+  });
 
-  deleteAllBtn.onclick = () => {
-    if (!confirm("⚠ 모든 분류를 삭제하시겠습니까?")) return;
-    localStorage.removeItem(KEY);
-    render();
-  };
+  /* 🔥 보정된 구조 다시 저장 */
+  saveCategories(categories);
+}
 
-  resetAllBtn.onclick = () => {
-    if (!confirm("⚠ 모든 분류와 메모가 삭제됩니다.\n되돌릴 수 없습니다.")) return;
-    localStorage.clear();
-    location.reload();
-  };
+/* ===== 대분류 추가 ===== */
+addMainBtn.onclick = () => {
+  const name = mainInput.value.trim();
+  if (!name) return;
 
+  const categories = loadCategories();
+
+  if (categories.length >= 5) {
+    alert("대분류는 최대 5개까지 가능합니다.");
+    return;
+  }
+
+  categories.push({
+    id: Date.now(),
+    name,
+    subs: [] // 🔥 처음부터 명시
+  });
+
+  saveCategories(categories);
+  mainInput.value = "";
   render();
-});
-  render();
-});
+};
 
+render();
