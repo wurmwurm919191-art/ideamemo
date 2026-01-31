@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const deleteAllBtn = document.getElementById("deleteAllBtn");
   const area = document.getElementById("categoryArea");
 
-  /* ===== 🔒 초기 구조 보정 (1회) ===== */
+  /* ===== 구조 보정 (유지) ===== */
   function normalizeCategories() {
     const categories = loadCategories();
     let changed = false;
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
       box.className = "category-box";
       box.style.marginBottom = "16px";
 
-      /* ===== 대분류 헤더 ===== */
+      /* ===== 🔥 대분류 헤더 (토글 포함) ===== */
       const header = document.createElement("div");
       header.style.display = "flex";
       header.style.alignItems = "center";
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
       header.append(toggleBtn, title, delMain);
       box.appendChild(header);
 
-      /* ===== 소분류 영역 ===== */
+      /* ===== 🔥 소분류 영역 (open일 때만) ===== */
       if (cat.open) {
         const subArea = document.createElement("div");
         subArea.style.marginTop = "8px";
@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ===== 대분류 추가 ===== */
+  /* ===== 대분류 추가 (유지) ===== */
   addMainBtn.onclick = () => {
     if (!confirm("대분류를 추가하시겠습니까?")) return;
 
@@ -150,18 +150,14 @@ document.addEventListener("DOMContentLoaded", () => {
     render();
   };
 
-  /* ===== 분류 전체 삭제 ===== */
+  /* ===== 전체 삭제 (유지) ===== */
   deleteAllBtn.onclick = () => {
     if (!confirm("⚠ 모든 분류를 삭제하시겠습니까?\n되돌릴 수 없습니다.")) return;
     localStorage.removeItem(KEY);
     render();
   };
 
-  /* ===== 실행 순서 중요 ===== */
-  normalizeCategories(); // 🔒 구조 보정 1회
-  render();              // 🎨 그리기
-});
-  };
-
+  /* ===== 실행 ===== */
+  normalizeCategories();
   render();
 });
