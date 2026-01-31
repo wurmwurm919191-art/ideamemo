@@ -133,3 +133,18 @@ document.addEventListener("DOMContentLoaded", () => {
   normalizeCategories();
   render();
 });
+const resetBtn = document.getElementById("resetAllBtn");
+
+if (resetBtn) {
+  resetBtn.addEventListener("click", () => {
+    const ok = confirm(
+      "⚠️ 모든 분류와 메모가 완전히 삭제됩니다.\n되돌릴 수 없습니다.\n\n정말 전체 리셋하시겠습니까?"
+    );
+
+    if (!ok) return;
+
+    localStorage.clear();
+    alert("전체 데이터가 초기화되었습니다.");
+    location.reload();
+  });
+}
