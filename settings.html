@@ -9,20 +9,9 @@
 <body>
 
 <div class="app">
-  <h1><!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>분류 설정</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-
-<div class="app">
   <h1>분류 설정</h1>
 
-  <!-- 🔥 전체 리셋 -->
+  <!-- 전체 리셋 -->
   <button id="resetAllBtn" style="
     width:100%;
     padding:12px;
@@ -36,15 +25,18 @@
     ⚠️ 전체 리셋 (모든 분류·메모 삭제)
   </button>
 
+  <!-- 대분류 추가 -->
   <div class="input-box">
     <input id="mainInput" placeholder="대분류 입력 (최대 5개)">
     <button id="addMainBtn">대분류 추가</button>
   </div>
 
+  <!-- 분류 전체 삭제 -->
   <div style="text-align:right; margin-bottom:12px;">
     <button id="deleteAllBtn">분류 전체 삭제</button>
   </div>
 
+  <!-- 분류 영역 -->
   <div id="categoryArea"></div>
 
   <div class="nav">
