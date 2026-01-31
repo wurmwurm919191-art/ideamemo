@@ -1,7 +1,6 @@
 const input = document.getElementById("memoInput");
 const addBtn = document.getElementById("addBtn");
 const list = document.getElementById("pendingList");
-
 const mainSelect = document.getElementById("mainSelect");
 const subSelect = document.getElementById("subSelect");
 
@@ -18,10 +17,9 @@ function saveMemos(memos) {
 }
 
 function renderCategorySelect() {
-  const categories = loadCategories();
   mainSelect.innerHTML = `<option value="">대분류</option>`;
   subSelect.innerHTML = `<option value="">소분류</option>`;
-  categories.forEach(c => {
+  loadCategories().forEach(c => {
     const o = document.createElement("option");
     o.value = c.id;
     o.textContent = c.name;
@@ -30,8 +28,8 @@ function renderCategorySelect() {
 }
 
 mainSelect.onchange = () => {
-  const cat = loadCategories().find(c => c.id === Number(mainSelect.value));
   subSelect.innerHTML = `<option value="">소분류</option>`;
+  const cat = loadCategories().find(c => c.id === Number(mainSelect.value));
   if (!cat) return;
   cat.subs.forEach(s => {
     const o = document.createElement("option");
@@ -42,14 +40,19 @@ mainSelect.onchange = () => {
 };
 
 addBtn.onclick = () => {
+  if (!confirm("메모를 추가하시겠습니까?")) return;
   const text = input.value.trim();
-  const categoryId = Number(mainSelect.value);
-  const subCategoryId = Number(subSelect.value);
-  if (!text || !categoryId || !subCategoryId) return;
+  if (!text) return;
 
-  const memos = loadMemos();
-  memos.push({ id: Date.now(), text, status: "pending", categoryId, subCategoryId });
-  saveMemos(memos);
+  loadMemos().push({
+    id: Date.now(),
+    text,
+    status: "pending",
+    categoryId: Number(mainSelect.value),
+    subCategoryId: Number(subSelect.value)
+  });
+
+  saveMemos(loadMemos());
   input.value = "";
   render();
 };
@@ -57,7 +60,6 @@ addBtn.onclick = () => {
 function render() {
   list.innerHTML = "";
   const categories = loadCategories();
-  categories.forEach(c => { if (!Array.isArray(c.subs)) c.subs = []; });
   const memos = loadMemos().filter(m => m.status === "pending");
 
   if (view.level === "main") {
@@ -84,58 +86,68 @@ function render() {
 
   if (view.level === "memo") {
     back("소분류로");
-    memos
-      .filter(m => m.categoryId === view.mainId && m.subCategoryId === view.subId)
+    memos.filter(m => m.categoryId === view.mainId && m.subCategoryId === view.subId)
       .forEach(m => {
         const li = document.createElement("li");
 
         const text = document.createElement("span");
         text.textContent = m.text;
 
-        const btns = document.createElement("div");
+        const edit = document.createElement("button");
+        edit.textContent = "수정";
+        edit.onclick = () => {
+          const newText = prompt("수정할 내용을 입력하세요", m.text);
+          if (newText === null) return;
+          if (!confirm("수정하시겠습니까?")) return;
+          m.text = newText;
+          saveMemos(loadMemos());
+          render();
+        };
 
         const run = document.createElement("button");
         run.textContent = "진행중";
-        run.onclick = () => updateStatus(m.id, "running");
+        run.onclick = () => {
+          if (!confirm("진행중으로 이동하시겠습니까?")) return;
+          m.status = "running";
+          saveMemos(loadMemos());
+          render();
+        };
 
         const done = document.createElement("button");
         done.textContent = "완료";
-        done.onclick = () => updateStatus(m.id, "completed");
+        done.onclick = () => {
+          if (!confirm("완료 처리하시겠습니까?")) return;
+          m.status = "completed";
+          saveMemos(loadMemos());
+          render();
+        };
 
         const del = document.createElement("button");
         del.textContent = "삭제";
         del.onclick = () => {
+          if (!confirm("삭제하시겠습니까?")) return;
           saveMemos(loadMemos().filter(x => x.id !== m.id));
           render();
         };
 
-        btns.append(run, done, del);
-        li.append(text, btns);
+        li.append(text, edit, run, done, del);
         list.appendChild(li);
       });
   }
-}
-
-function updateStatus(id, status) {
-  const memos = loadMemos();
-  const m = memos.find(x => x.id === id);
-  if (!m) return;
-  m.status = status;
-  saveMemos(memos);
-  render(); // ❗ 이동 없음
 }
 
 function back(text) {
   const li = document.createElement("li");
   li.textContent = "← " + text;
   li.onclick = () => {
-    view = view.level === "memo"
-      ? { level: "sub", mainId: view.mainId }
-      : { level: "main" };
+    view = view.level === "memo" ? { level: "sub", mainId: view.mainId } : { level: "main" };
     render();
   };
   list.appendChild(li);
 }
+
+renderCategorySelect();
+render();
 
 renderCategorySelect();
 render();
