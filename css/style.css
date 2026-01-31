@@ -39,18 +39,14 @@ button {
   font-size: 16px;
 }
 
-/* ===== list (공통) ===== */
+/* ===== list ===== */
 ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-/* =================================================
-   메모 리스트 전용 스타일
-   (설정 페이지 영향 없음)
-================================================= */
-#pendingList > li {
+li {
   background: #f1f5f9;
   padding: 12px;
   border-radius: 8px;
@@ -61,14 +57,16 @@ ul {
   gap: 8px;
 }
 
-#pendingList > li span {
+/* ===== memo text (🔥 여기만 수정됨) ===== */
+li span {
   width: 100%;
-  white-space: pre-wrap;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
+  white-space: pre-wrap;      /* 엔터 유지 */
+  word-break: normal;         /* 글자 단위 쪼개기 방지 */
+  overflow-wrap: break-word;  /* 모바일 정상 줄바꿈 */
 }
 
-#pendingList > li button {
+/* ===== buttons ===== */
+li button {
   white-space: nowrap;
 }
 
@@ -89,21 +87,5 @@ ul {
   .input-box select,
   .input-box button {
     width: 100%;
-  }
-
-  #pendingList > li {
-    display: block;
-  }
-
-  #pendingList > li span {
-    display: block;
-    width: 100%;
-    white-space: pre-wrap;
-    word-break: keep-all;
-    overflow-wrap: anywhere;
-  }
-
-  #pendingList > li button {
-    margin-top: 6px;
   }
 }
