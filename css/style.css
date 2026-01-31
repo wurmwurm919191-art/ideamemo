@@ -1,76 +1,82 @@
-/* 기존 스타일 유지하면서 아래 부분 업데이트/추가 */
-
 .category-main,
 .category-sub {
-  cursor: pointer;
-  user-select: none;
   padding: 12px 16px;
   margin: 6px 0;
   border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
 }
 
 .category-main {
   background: #e0f2fe;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .category-sub {
-  background: #f1f5f9;
-  margin-left: 24px;
+  background: #f3f4f6;
+  margin-left: 28px;
 }
 
 .memo-item {
   background: white;
   border: 1px solid #e5e7eb;
-  padding: 12px 16px;
-  margin: 6px 0 6px 48px;
   border-radius: 8px;
+  padding: 12px 16px;
+  margin: 8px 0 8px 48px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.memo-item span {
-  flex: 1;
+.memo-text {
   line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.memo-controls {
+.memo-buttons {
   display: flex;
   gap: 8px;
-  justify-content: flex-end;        /* 오른쪽 정렬 */
-  flex-wrap: wrap;
+  justify-content: flex-end;          /* 오른쪽 정렬 */
+  margin-top: 4px;
 }
 
-.memo-controls button {
+.memo-buttons button {
   padding: 6px 12px;
   font-size: 0.9rem;
   border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.memo-buttons button:hover {
+  background: #e5e7eb;
 }
 
 .toggle-arrow {
   display: inline-block;
-  width: 1.5em;
+  min-width: 1.4em;
   text-align: center;
-  font-size: 1.1rem;
-  color: #4b5563;
-  margin-right: 6px;
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #374151;
+  margin-right: 8px;
 }
 
-.empty {
-  margin: 8px 0 8px 48px;
-  color: #9ca3af;
-  font-style: italic;
-}
-
-/* 모바일 */
+/* 모바일 대응 */
 @media (max-width: 600px) {
   .memo-item {
     margin-left: 32px;
   }
   .category-sub {
-    margin-left: 16px;
+    margin-left: 20px;
   }
+  .memo-buttons {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
   .memo-controls {
     justify-content: flex-start;
   }
